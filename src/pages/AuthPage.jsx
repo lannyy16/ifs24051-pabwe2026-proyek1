@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-
 import {
   Eye,
   EyeOff,
@@ -22,13 +21,8 @@ function getFormString(data, name) {
 function getAuthForm(data) {
   return {
     name: getFormString(data, "name").trim(),
-
-    email: getFormString(data, "email")
-      .trim()
-      .toLowerCase(),
-
+    email: getFormString(data, "email").trim().toLowerCase(),
     password: getFormString(data, "password"),
-
     confirmation: getFormString(data, "confirmation"),
   };
 }
@@ -226,7 +220,6 @@ export default function AuthPage({
                 ) : (
                   <LogIn size={16} />
                 )}
-
                 {getSubmitLabel(isRegister, loading)}
               </>
             )}
@@ -237,7 +230,6 @@ export default function AuthPage({
           {isRegister
             ? "Sudah punya akun?"
             : "Belum punya akun?"}{" "}
-
           <button
             type="button"
             className="textlink"

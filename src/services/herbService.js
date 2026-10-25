@@ -14,10 +14,7 @@ const API_URL = `${API_BASE_URL}/api/herbs`;
  * @param {AbortSignal} options.signal
  * @returns {Promise<Array>}
  */
-export async function getHerbs({
-  search = "",
-  signal,
-} = {}) {
+export async function getHerbs({ search = "", signal } = {}) {
   const params = new URLSearchParams();
 
   const keyword = String(search || "").trim();
@@ -27,10 +24,7 @@ export async function getHerbs({
   }
 
   const query = params.toString();
-
-  const url = query
-    ? `${API_URL}?${query}`
-    : API_URL;
+  const url = query ? `${API_URL}?${query}` : API_URL;
 
   try {
     const response = await fetch(url, {
@@ -54,7 +48,7 @@ export async function getHerbs({
       result.success !== true ||
       !Array.isArray(result.data)
     ) {
-      throw new Error(
+      throw new TypeError(
         "Format data herbal dari server tidak valid."
       );
     }

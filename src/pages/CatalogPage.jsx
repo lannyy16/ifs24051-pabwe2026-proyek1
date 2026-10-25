@@ -39,9 +39,9 @@ function CatalogPage() {
     const keyword = search.toLowerCase();
 
     const matchesSearch =
-      herb.name.toLowerCase().includes(keyword) ||
-      herb.scientificName.toLowerCase().includes(keyword) ||
-      herb.description.toLowerCase().includes(keyword);
+      (herb.name || "").toLowerCase().includes(keyword) ||
+      (herb.scientificName || "").toLowerCase().includes(keyword) ||
+      (herb.description || "").toLowerCase().includes(keyword);
 
     const matchesCategory =
       selectedCategory === "Semua" ||
@@ -65,7 +65,7 @@ function CatalogPage() {
         <h1>Katalog Tanaman Herbal</h1>
         <p>{error}</p>
 
-        <button onClick={() => window.location.reload()}>
+        <button onClick={() => globalThis.location.reload()}>
           Coba Lagi
         </button>
       </main>
@@ -128,26 +128,21 @@ function CatalogPage() {
                   <h2>{herb.name}</h2>
 
                   <p>
-                    <i>{herb.scientificName}</i>
+                    <i>{herb.scientificName || "Nama ilmiah belum tersedia"}</i>
                   </p>
 
-                  <p>{herb.description}</p>
+                  <p>{herb.description || "Deskripsi belum tersedia."}</p>
 
-                  <p>
-                    Kategori: {herb.category}
-                  </p>
+                  <p>Kategori: {herb.category || "Belum dikategorikan"}</p>
 
                   <h3>Manfaat Tradisional</h3>
-
-                  <p>{herb.traditional}</p>
+                  <p>{herb.traditional || "Informasi belum tersedia."}</p>
 
                   <h3>Bukti Ilmiah</h3>
-
-                  <p>{herb.evidence}</p>
+                  <p>{herb.evidence || "Informasi belum tersedia."}</p>
 
                   <h3>Keamanan</h3>
-
-                  <p>{herb.safety}</p>
+                  <p>{herb.safety || "Informasi belum tersedia."}</p>
                 </div>
               </article>
             ))}

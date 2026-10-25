@@ -15,7 +15,7 @@ export const TOKEN_KEY = "herbanusantara-token";
  * Digunakan untuk login, register, profile, dan endpoint lainnya.
  */
 export async function apiRequest(path, options = {}) {
-  const token = sessionStorage.getItem(TOKEN_KEY);
+  const token = globalThis.sessionStorage.getItem(TOKEN_KEY);
 
   const headers = {
     Accept: "application/json",
@@ -38,11 +38,11 @@ export async function apiRequest(path, options = {}) {
       headers,
     });
   } catch (error) {
-    if (error.name === "AbortError") {
+    if (error?.name === "AbortError") {
       throw error;
     }
 
-    throw new Error(
+    throw new TypeError(
       "Tidak dapat terhubung ke backend. Pastikan backend berjalan."
     );
   }
@@ -52,7 +52,7 @@ export async function apiRequest(path, options = {}) {
   try {
     result = await response.json();
   } catch {
-    throw new Error("Response backend tidak valid.");
+    throw new TypeError("Response backend tidak valid.");
   }
 
   if (!response.ok || result?.success === false) {
@@ -69,10 +69,7 @@ export async function apiRequest(path, options = {}) {
  * Mengambil seluruh data herbal dari backend.
  * Digunakan oleh CatalogPage dan useHerbs.
  */
-export async function getHerbs({
-  search = "",
-  signal,
-} = {}) {
+export async function getHerbs({ search = "", signal } = {}) {
   const params = new URLSearchParams();
 
   const keyword = String(search || "").trim();
@@ -83,9 +80,7 @@ export async function getHerbs({
 
   const query = params.toString();
 
-  const endpoint = query
-    ? `/herbs?${query}`
-    : "/herbs";
+  const endpoint = query ? `/herbs?${query}` : "/herbs";
 
   const result = await apiRequest(endpoint, {
     method: "GET",
@@ -93,7 +88,7 @@ export async function getHerbs({
   });
 
   if (!Array.isArray(result.data)) {
-    throw new Error(
+    throw new TypeError(
       "Data herbal dari backend tidak valid."
     );
   }

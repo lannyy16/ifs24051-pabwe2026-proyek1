@@ -9,7 +9,6 @@ import {
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import HerbDetailModal from "./components/HerbDetailModal.jsx";
-
 import useHerbs from "./hooks/useHerbs.js";
 
 import HomePage from "./pages/HomePage.jsx";
@@ -183,7 +182,6 @@ function validateAuthForm(form, isRegister) {
     .toLowerCase();
 
   const password = getStringValue(form.password);
-
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(email)) {
@@ -398,6 +396,7 @@ function renderPage({
 
   switch (page) {
     case "Beranda":
+    default:
       return (
         <HomeContent
           herbs={herbs}
@@ -458,15 +457,6 @@ function renderPage({
           authLoading={authLoading}
         />
       );
-
-    default:
-      return (
-        <HomeContent
-          herbs={herbs}
-          navigate={navigate}
-          setSelectedHerb={setSelectedHerb}
-        />
-      );
   }
 }
 
@@ -475,10 +465,6 @@ function renderPage({
 // =====================================================
 
 export default function App() {
-  // ---------------------------------------------------
-  // STATE
-  // ---------------------------------------------------
-
   const [page, setPage] = useState(() =>
     pageFromPath(globalThis.location.pathname)
   );
@@ -492,20 +478,13 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
-  // ---------------------------------------------------
-  // HERBAL API
-  // ---------------------------------------------------
-
   const {
     herbs,
     loading,
     error,
   } = useHerbs(search, reloadKey);
 
-  // ---------------------------------------------------
-  // SAVED HERBS
-  // ---------------------------------------------------
-
+  // Simpan herbal favorit
   useEffect(() => {
     try {
       globalThis.localStorage.setItem(
@@ -517,10 +496,7 @@ export default function App() {
     }
   }, [savedIds]);
 
-  // ---------------------------------------------------
-  // RESTORE USER SESSION
-  // ---------------------------------------------------
-
+  // Pulihkan sesi pengguna
   useEffect(() => {
     const token = readToken();
 
@@ -567,10 +543,7 @@ export default function App() {
     };
   }, []);
 
-  // ---------------------------------------------------
-  // BROWSER NAVIGATION
-  // ---------------------------------------------------
-
+  // Navigasi browser
   useEffect(() => {
     const onPopState = () => {
       setPage(pageFromPath(globalThis.location.pathname));
@@ -585,10 +558,7 @@ export default function App() {
     };
   }, []);
 
-  // ---------------------------------------------------
-  // UPDATE SELECTED HERB
-  // ---------------------------------------------------
-
+  // Perbarui herbal yang sedang dipilih
   useEffect(() => {
     if (!selectedHerb) {
       return;
@@ -603,43 +573,34 @@ export default function App() {
     }
   }, [herbs, selectedHerb]);
 
-  // ---------------------------------------------------
-  // NAVIGATION
-  // ---------------------------------------------------
+  // Navigasi halaman
+  const navigate = useCallback((nextPage, nextCategory) => {
+    setPage(nextPage);
 
-  const navigate = useCallback(
-    (nextPage, nextCategory) => {
-      setPage(nextPage);
+    const nextPath = ROUTES[nextPage] || "/";
 
-      const nextPath = ROUTES[nextPage] || "/";
+    if (globalThis.location.pathname !== nextPath) {
+      globalThis.history.pushState(null, "", nextPath);
+    }
 
-      if (globalThis.location.pathname !== nextPath) {
-        globalThis.history.pushState(null, "", nextPath);
+    setSelectedHerb(null);
+    setAuthError("");
+
+    if (nextPage === "Katalog Herbal") {
+      setCategory(nextCategory || "Semua");
+
+      if (nextCategory && nextCategory !== "Semua") {
+        setSearch("");
       }
+    }
 
-      setSelectedHerb(null);
-      setAuthError("");
+    globalThis.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
 
-      if (nextPage === "Katalog Herbal") {
-        setCategory(nextCategory || "Semua");
-
-        if (nextCategory && nextCategory !== "Semua") {
-          setSearch("");
-        }
-      }
-
-      globalThis.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    },
-    []
-  );
-
-  // ---------------------------------------------------
-  // TOGGLE SAVED HERBS
-  // ---------------------------------------------------
-
+  // Simpan atau hapus herbal favorit
   const toggleSaved = useCallback((id) => {
     setSavedIds((current) =>
       current.includes(id)
@@ -648,10 +609,7 @@ export default function App() {
     );
   }, []);
 
-  // ---------------------------------------------------
-  // AUTHENTICATION
-  // ---------------------------------------------------
-
+  // Login dan registrasi
   const handleAuth = useCallback(
     async (form) => {
       setAuthError("");
@@ -691,10 +649,7 @@ export default function App() {
     [page, navigate]
   );
 
-  // ---------------------------------------------------
-  // LOGOUT
-  // ---------------------------------------------------
-
+  // Logout
   const logout = useCallback(() => {
     clearSession();
     setUser(null);
@@ -702,10 +657,7 @@ export default function App() {
     navigate("Beranda");
   }, [navigate]);
 
-  // ---------------------------------------------------
-  // PAGE
-  // ---------------------------------------------------
-
+  // Konten halaman
   const content = useMemo(
     () =>
       renderPage({
@@ -745,10 +697,6 @@ export default function App() {
       authLoading,
     ]
   );
-
-  // ---------------------------------------------------
-  // RENDER
-  // ---------------------------------------------------
 
   return (
     <>
