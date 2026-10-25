@@ -2,10 +2,7 @@ import PropTypes from "prop-types";
 import { Search } from "lucide-react";
 import HerbCard from "../components/HerbCard.jsx";
 import { herbShape, idType } from "../utils/propTypes.js";
-
-function categoryOf(herb) {
-  return herb.category || herb.tag;
-}
+import { herbCategory } from "../utils/herbFormatters.js";
 
 export default function CatalogPage({
   herbs,
@@ -22,11 +19,11 @@ export default function CatalogPage({
 }) {
   const categories = [
     "Semua",
-    ...new Set(herbs.map(categoryOf).filter(Boolean)),
+    ...new Set(herbs.map(herbCategory).filter(Boolean)),
   ];
 
   const visibleHerbs = herbs.filter(
-    (herb) => category === "Semua" || categoryOf(herb) === category,
+    (herb) => category === "Semua" || herbCategory(herb) === category,
   );
 
   const showResults = !loading && !error;

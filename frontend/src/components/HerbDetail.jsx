@@ -1,18 +1,33 @@
 import PropTypes from "prop-types";
+import { useEffect, useRef } from "react";
 import { ArrowLeft, Bookmark } from "lucide-react";
 import { herbShape } from "../utils/propTypes.js";
+import useEscapeKey from "../hooks/useEscapeKey.js";
 import {
+  herbCategoryLabel,
   herbDescription,
   herbEmoji,
   herbNameLatin,
 } from "../utils/herbFormatters.js";
 
-export default function HerbDetailModal({
+/**
+ * Tampilan detail herbal. Judulnya menerima fokus saat dibuka (untuk
+ * pembaca layar) dan tombol Escape menutupnya.
+ */
+export default function HerbDetail({
   herb,
   onClose,
   saved,
   onToggleSave,
 }) {
+  const titleRef = useRef(null);
+
+  useEscapeKey(onClose);
+
+  useEffect(() => {
+    titleRef.current?.focus();
+  }, [herb?.id]);
+
   if (!herb) {
     return null;
   }
@@ -31,7 +46,7 @@ export default function HerbDetailModal({
     "Perhatikan kemungkinan alergi dan interaksi dengan obat. Konsultasikan dengan tenaga kesehatan sebelum penggunaan untuk tujuan pengobatan.";
 
   return (
-    <section
+    <article
       className="detail"
       aria-labelledby="herb-detail-title"
     >
@@ -54,7 +69,7 @@ export default function HerbDetailModal({
           <span>{herbEmoji(herb)}</span>
 
           <small>
-            {herb.category || herb.tag || "Herbal"}
+            {herbCategoryLabel(herb)}
           </small>
         </div>
 
@@ -63,7 +78,11 @@ export default function HerbDetailModal({
             ENSIKLOPEDIA HERBAL
           </p>
 
-          <h1 id="herb-detail-title">
+          <h1
+            id="herb-detail-title"
+            ref={titleRef}
+            tabIndex={-1}
+          >
             {herb.name}
           </h1>
 
@@ -75,6 +94,7 @@ export default function HerbDetailModal({
             className="save"
             type="button"
             onClick={() => onToggleSave(herb.id)}
+            aria-pressed={Boolean(saved)}
           >
             <Bookmark size={16} />
             {saved ? "Tersimpan" : "Simpan herbal"}
@@ -118,11 +138,11 @@ export default function HerbDetailModal({
         Informasi ini untuk edukasi, bukan diagnosis
         atau pengganti saran tenaga kesehatan.
       </p>
-    </section>
+    </article>
   );
 }
 
-HerbDetailModal.propTypes = {
+HerbDetail.propTypes = {
   herb: herbShape,
   onClose: PropTypes.func.isRequired,
   saved: PropTypes.bool,

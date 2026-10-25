@@ -5,6 +5,7 @@ import {
   getAuthFormData,
   getSubmitLabel,
 } from "../utils/authForm.js";
+import { PAGES } from "../utils/routes.js";
 
 export default function AuthPage({
   mode,
@@ -13,7 +14,7 @@ export default function AuthPage({
   onSwitch,
   loading = false,
 }) {
-  const isRegister = mode === "Daftar";
+  const isRegister = mode === PAGES.REGISTER;
 
   // Mengirim data form
   function handleSubmit(event) {
@@ -32,7 +33,7 @@ export default function AuthPage({
 
   // Berpindah mode login dan daftar
   function handleSwitch() {
-    onSwitch(isRegister ? "Masuk" : "Daftar");
+    onSwitch(isRegister ? PAGES.LOGIN : PAGES.REGISTER);
   }
 
   return (

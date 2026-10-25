@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { herbShape } from "../utils/propTypes.js";
 import {
+  herbCategoryLabel,
   herbDescription,
   herbEmoji,
   herbNameLatin,
@@ -28,7 +29,7 @@ export default function HerbCard({
           }}
         >
           <span aria-hidden="true">{herbEmoji(herb)}</span>
-          <small>{herb.tag || herb.category || "Herbal"}</small>
+          <small>{herbCategoryLabel(herb)}</small>
         </div>
 
         <div className="cardbody">

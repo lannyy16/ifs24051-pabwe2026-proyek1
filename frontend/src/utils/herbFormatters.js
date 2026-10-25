@@ -19,3 +19,13 @@ export function herbDescription(herb) {
 export function herbEmoji(herb) {
   return herb.emoji || "🌿";
 }
+
+/** Kategori herbal (field `category` atau `tag`); kosong jika tidak ada. */
+export function herbCategory(herb) {
+  return herb.category || herb.tag || "";
+}
+
+/** Label kategori untuk ditampilkan di UI. */
+export function herbCategoryLabel(herb) {
+  return herbCategory(herb) || "Herbal";
+}

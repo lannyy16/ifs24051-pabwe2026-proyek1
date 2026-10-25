@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import HerbDetailModal from "./HerbDetailModal.jsx";
+import HerbDetail from "./HerbDetail.jsx";
 
 const herb = {
   id: 1,
@@ -16,10 +16,10 @@ const herb = {
   safety: "Hati-hati pada pengencer darah.",
 };
 
-describe("HerbDetailModal", () => {
+describe("HerbDetail", () => {
   it("tidak menampilkan apa pun tanpa herbal", () => {
     const { container } = render(
-      <HerbDetailModal onClose={vi.fn()} onToggleSave={vi.fn()} />,
+      <HerbDetail onClose={vi.fn()} onToggleSave={vi.fn()} />,
     );
 
     expect(container.innerHTML).toBe("");
@@ -29,7 +29,7 @@ describe("HerbDetailModal", () => {
     const onClose = vi.fn();
     const onToggleSave = vi.fn();
     render(
-      <HerbDetailModal
+      <HerbDetail
         herb={herb}
         onClose={onClose}
         saved={false}
@@ -50,7 +50,7 @@ describe("HerbDetailModal", () => {
 
   it("memakai teks cadangan untuk data yang kosong", () => {
     render(
-      <HerbDetailModal
+      <HerbDetail
         herb={{ id: 3, name: "Sirih" }}
         onClose={vi.fn()}
         saved
@@ -66,7 +66,7 @@ describe("HerbDetailModal", () => {
 
   it("tidak menampilkan pesan kosong jika ada manfaat tradisional", () => {
     render(
-      <HerbDetailModal
+      <HerbDetail
         herb={{ id: 4, name: "Temulawak", traditional: "Jamu." }}
         onClose={vi.fn()}
         onToggleSave={vi.fn()}
@@ -74,5 +74,26 @@ describe("HerbDetailModal", () => {
     );
 
     expect(screen.queryByText("Informasi manfaat belum tersedia.")).toBeNull();
+  });
+
+  it("menutup detail saat tombol Escape ditekan", () => {
+    const onClose = vi.fn();
+    render(
+      <HerbDetail herb={herb} onClose={onClose} onToggleSave={vi.fn()} />,
+    );
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("memindahkan fokus ke judul saat dibuka", () => {
+    render(
+      <HerbDetail herb={herb} onClose={vi.fn()} onToggleSave={vi.fn()} />,
+    );
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("heading", { name: "Jahe", level: 1 }),
+    );
   });
 });

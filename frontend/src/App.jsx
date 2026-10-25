@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
-import HerbDetailModal from "./components/HerbDetailModal.jsx";
+import HerbDetail from "./components/HerbDetail.jsx";
 import useAuth from "./hooks/useAuth.js";
 import useHerbs from "./hooks/useHerbs.js";
 import usePageRouter from "./hooks/usePageRouter.js";
@@ -16,7 +16,7 @@ import NotFoundPage from "./pages/NotFoundPage.jsx";
 import useDebouncedValue from "./hooks/useDebouncedValue.js";
 import useDocumentTitle from "./hooks/useDocumentTitle.js";
 import { SEARCH_DEBOUNCE_MS } from "./config/constants.js";
-import { NOT_FOUND_PAGE } from "./utils/routes.js";
+import { PAGES } from "./utils/routes.js";
 
 export default function App() {
   const [search, setSearch] = useState("");
@@ -53,13 +53,15 @@ export default function App() {
     }
   }, [herbs, selectedHerb]);
 
+  const closeHerb = useCallback(() => setSelectedHerb(null), []);
+
   // Navigasi halaman
   const navigate = useCallback(
     (nextPage, nextCategory) => {
       goTo(nextPage);
       resetTransientState();
 
-      if (nextPage === "Katalog Herbal") {
+      if (nextPage === PAGES.CATALOG) {
         setCategory(nextCategory || "Semua");
 
         if (nextCategory && nextCategory !== "Semua") {
@@ -75,7 +77,7 @@ export default function App() {
     (keyword) => {
       setSearch(keyword);
       setCategory("Semua");
-      navigate("Katalog Herbal");
+      navigate(PAGES.CATALOG);
     },
     [navigate],
   );
@@ -84,10 +86,10 @@ export default function App() {
   const { submit: submitAuth } = auth;
   const handleAuth = useCallback(
     async (form) => {
-      const isSuccess = await submitAuth(form, page === "Daftar");
+      const isSuccess = await submitAuth(form, page === PAGES.REGISTER);
 
       if (isSuccess) {
-        navigate("Dashboard");
+        navigate(PAGES.DASHBOARD);
       }
     },
     [page, submitAuth, navigate],
@@ -97,15 +99,15 @@ export default function App() {
   const { logout: logoutUser } = auth;
   const handleLogout = useCallback(() => {
     logoutUser();
-    navigate("Beranda");
+    navigate(PAGES.HOME);
   }, [logoutUser, navigate]);
 
   function renderPage() {
     if (selectedHerb) {
       return (
-        <HerbDetailModal
+        <HerbDetail
           herb={selectedHerb}
-          onClose={() => setSelectedHerb(null)}
+          onClose={closeHerb}
           saved={savedIds.includes(selectedHerb.id)}
           onToggleSave={toggleSaved}
         />
@@ -113,7 +115,7 @@ export default function App() {
     }
 
     switch (page) {
-      case "Katalog Herbal":
+      case PAGES.CATALOG:
         return (
           <CatalogPage
             herbs={herbs}
@@ -130,13 +132,13 @@ export default function App() {
           />
         );
 
-      case "Herbal Finder":
+      case PAGES.FINDER:
         return <FinderPage onChooseTopic={chooseTopic} />;
 
-      case "Artikel":
+      case PAGES.ARTICLES:
         return <ArticlesPage />;
 
-      case "Dashboard":
+      case PAGES.DASHBOARD:
         return (
           <DashboardPage
             user={auth.user}
@@ -148,8 +150,8 @@ export default function App() {
           />
         );
 
-      case "Masuk":
-      case "Daftar":
+      case PAGES.LOGIN:
+      case PAGES.REGISTER:
         return (
           <AuthPage
             mode={page}
@@ -160,7 +162,7 @@ export default function App() {
           />
         );
 
-      case NOT_FOUND_PAGE:
+      case PAGES.NOT_FOUND:
         return <NotFoundPage onNavigate={navigate} />;
 
       default:

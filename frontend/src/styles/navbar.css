@@ -78,7 +78,6 @@ nav button:hover {
   padding: 9px 12px;
 }
 
-.auth-nav,
 .nav-auth {
   display: flex;
   align-items: center;
@@ -88,34 +87,3 @@ nav button:hover {
 .nav-auth .lang {
   white-space: nowrap;
 }
-
-.auth-outline,
-.auth-small,
-.auth-user {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border-radius: 9px;
-  padding: 10px 13px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.auth-outline {
-  border: 1px solid #dfe5db;
-  background: #fff;
-  color: #426f4c;
-}
-
-.auth-small {
-  background: #426f4c;
-  color: #fff;
-}
-
-.auth-user {
-  color: #426f4c;
-  background: #edf3e8;
-}
-

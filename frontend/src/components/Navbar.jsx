@@ -2,12 +2,13 @@ import PropTypes from "prop-types";
 import { ChevronRight, Globe, LogIn, LogOut, UserPlus } from "lucide-react";
 import Brand from "./Brand.jsx";
 import { NAV_ITEMS } from "../data/navigation.js";
+import { PAGES } from "../utils/routes.js";
 
 export default function Navbar({ page, onNavigate, user, onLogout }) {
   return (
     <header>
       <div className="nav wrap">
-        <Brand onClick={() => onNavigate("Beranda")} />
+        <Brand onClick={() => onNavigate(PAGES.HOME)} />
 
         <nav aria-label="Navigasi utama">
           {NAV_ITEMS.map((item) => (
@@ -32,14 +33,14 @@ export default function Navbar({ page, onNavigate, user, onLogout }) {
               <button
                 type="button"
                 className="lang"
-                onClick={() => onNavigate("Masuk")}
+                onClick={() => onNavigate(PAGES.LOGIN)}
               >
                 <LogIn size={15} /> Masuk
               </button>
               <button
                 type="button"
                 className="lang"
-                onClick={() => onNavigate("Daftar")}
+                onClick={() => onNavigate(PAGES.REGISTER)}
               >
                 <UserPlus size={15} /> Daftar
               </button>

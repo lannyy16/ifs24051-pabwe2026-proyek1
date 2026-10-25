@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { ArrowRight } from "lucide-react";
+import { PAGES } from "../utils/routes.js";
 
 export default function NotFoundPage({ onNavigate }) {
   return (
@@ -11,7 +12,7 @@ export default function NotFoundPage({ onNavigate }) {
       <button
         type="button"
         className="primary"
-        onClick={() => onNavigate("Beranda")}
+        onClick={() => onNavigate(PAGES.HOME)}
       >
         Kembali ke Beranda
         <ArrowRight size={16} />

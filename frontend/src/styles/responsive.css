@@ -37,26 +37,15 @@
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .auth-layout {
-    gap: 28px;
-  }
+  
 
-  .auth-decoration {
-    padding: 28px;
-  }
+  
 
-  .auth-decoration h2 {
-    font-size: 30px;
-  }
+  
 
-  .auth-leaf {
-    font-size: 120px;
-    right: 35px;
-  }
+  
 
-  .auth-nav {
-    margin-left: auto;
-  }
+  
 }
 
 /* =========================================
@@ -106,9 +95,7 @@
     overflow-x: auto;
   }
 
-  .auth-nav {
-    order: 2;
-  }
+  
 
   .hero {
     grid-template-columns: 1fr;
@@ -145,46 +132,25 @@
     height: 230px;
   }
 
-  .foot {
-    gap: 12px;
-  }
+  
 
   .stats {
     gap: 20px;
   }
 
-  .auth-layout {
-    grid-template-columns: 1fr;
-    gap: 22px;
-    padding: 25px 0;
-  }
+  
 
-  .auth-decoration {
-    min-height: 250px;
-    padding: 25px;
-  }
+  
 
-  .auth-leaf {
-    font-size: 85px;
-    right: 30px;
-    top: 20px;
-  }
+  
 
-  .auth-decoration h2 {
-    font-size: 27px;
-  }
+  
 
-  .auth-decoration > p:not(.eyebrow) {
-    max-width: 300px;
-  }
+  
 
-  .auth-panel {
-    padding: 10px 5px;
-  }
+  
 
-  .auth-panel h1 {
-    font-size: 32px;
-  }
+  
 
   .lang {
     margin-left: auto;

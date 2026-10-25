@@ -14,6 +14,13 @@ export function readSessionUser() {
   }
 }
 
+/*
+ * Catatan keamanan: token disimpan di sessionStorage (terhapus saat tab
+ * ditutup, tidak dibagi antar tab). Ini tetap bisa dibaca skrip bila terjadi
+ * XSS, jadi aplikasi tidak memakai dangerouslySetInnerHTML dan semua teks
+ * di-escape oleh React. Opsi yang lebih aman untuk produksi adalah cookie
+ * httpOnly yang diatur backend.
+ */
 export function readToken() {
   try {
     return globalThis.sessionStorage.getItem(TOKEN_KEY) || "";

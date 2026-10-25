@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { PAGES } from "../utils/routes.js";
 
 export default function Footer({ onNavigate }) {
   return (
@@ -9,7 +10,7 @@ export default function Footer({ onNavigate }) {
       <button
         type="button"
         className="textlink"
-        onClick={() => onNavigate("Beranda")}
+        onClick={() => onNavigate(PAGES.HOME)}
       >
         Kembali ke Beranda
       </button>

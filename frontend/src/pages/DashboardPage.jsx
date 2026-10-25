@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { ArrowRight, Bookmark } from "lucide-react";
 import HerbCard from "../components/HerbCard.jsx";
 import { herbShape, idType } from "../utils/propTypes.js";
+import { PAGES } from "../utils/routes.js";
 
 export default function DashboardPage({
   user,
@@ -43,7 +44,7 @@ export default function DashboardPage({
             <button
               type="button"
               className="textlink"
-              onClick={() => onNavigate("Katalog Herbal")}
+              onClick={() => onNavigate(PAGES.CATALOG)}
             >
               Buka katalog <ArrowRight size={15} />
             </button>

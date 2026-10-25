@@ -1,16 +1,5 @@
 import { API_BASE_URL } from "../config/env.js";
-import { TOKEN_KEY } from "../config/storageKeys.js";
-
-/**
- * Mengambil token autentikasi dari sessionStorage.
- */
-function getAuthToken() {
-  try {
-    return globalThis.sessionStorage?.getItem(TOKEN_KEY) || "";
-  } catch {
-    return "";
-  }
-}
+import { readToken } from "../utils/session.js";
 
 /**
  * Mengirim request ke backend.
@@ -25,7 +14,7 @@ export async function apiRequest(endpoint, options = {}) {
     ...requestOptions
   } = options;
 
-  const token = getAuthToken();
+  const token = readToken();
 
   const headers = {
     Accept: "application/json",

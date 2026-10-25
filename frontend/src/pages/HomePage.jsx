@@ -3,6 +3,7 @@ import { ArrowRight, Leaf, ShieldCheck } from "lucide-react";
 import HerbCard from "../components/HerbCard.jsx";
 import { PLANT_CATEGORIES } from "../data/plantCategories.js";
 import { herbShape } from "../utils/propTypes.js";
+import { PAGES } from "../utils/routes.js";
 
 export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
   return (
@@ -29,7 +30,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
             <button
               type="button"
               className="primary"
-              onClick={() => onNavigate("Katalog Herbal")}
+              onClick={() => onNavigate(PAGES.CATALOG)}
             >
               Jelajahi herbal
               <ArrowRight size={17} />
@@ -38,7 +39,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
             <button
               type="button"
               className="secondary"
-              onClick={() => onNavigate("Herbal Finder")}
+              onClick={() => onNavigate(PAGES.FINDER)}
             >
               Cari berdasarkan topik
             </button>
@@ -88,7 +89,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
           <button
             type="button"
             className="textlink"
-            onClick={() => onNavigate("Katalog Herbal")}
+            onClick={() => onNavigate(PAGES.CATALOG)}
           >
             Lihat semua
             <ArrowRight size={16} />
@@ -119,7 +120,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
         <button
           type="button"
           className="primary"
-          onClick={() => onNavigate("Herbal Finder")}
+          onClick={() => onNavigate(PAGES.FINDER)}
         >
           Mulai pencarian
           <ArrowRight size={16} />
@@ -138,7 +139,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
           {PLANT_CATEGORIES.map(({ emoji, name, examples }) => (
             <button
               type="button"
-              onClick={() => onNavigate("Katalog Herbal", name)}
+              onClick={() => onNavigate(PAGES.CATALOG, name)}
               className="cat"
               key={name}
             >

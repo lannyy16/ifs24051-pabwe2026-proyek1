@@ -7,18 +7,3 @@ footer {
   border-top: 1px solid #e5e9e1;
   padding: 30px 0;
 }
-
-.foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.foot p,
-.foot > small {
-  font-size: max(12px, 0.75rem);
-  color: #59665a;
-  line-height: 1.5;
-}
-

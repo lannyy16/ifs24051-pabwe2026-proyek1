@@ -1,29 +1,43 @@
 import { trimTrailingSlashes } from "./url.js";
 
+/** Satu-satunya definisi nama halaman; pakai konstanta ini, bukan string. */
+export const PAGES = Object.freeze({
+  HOME: "Beranda",
+  CATALOG: "Katalog Herbal",
+  FINDER: "Herbal Finder",
+  ARTICLES: "Artikel",
+  DASHBOARD: "Dashboard",
+  LOGIN: "Masuk",
+  REGISTER: "Daftar",
+  NOT_FOUND: "Tidak Ditemukan",
+});
+
 /** Nama halaman untuk path yang tidak dikenal. */
-export const NOT_FOUND_PAGE = "Tidak Ditemukan";
+export const NOT_FOUND_PAGE = PAGES.NOT_FOUND;
 
-export const ROUTES = {
-  Beranda: "/",
-  "Katalog Herbal": "/katalog",
-  "Herbal Finder": "/finder",
-  Artikel: "/artikel",
-  Dashboard: "/dashboard",
-  Masuk: "/auth/login",
-  Daftar: "/auth/register",
-};
+/** Path utama setiap halaman. */
+export const ROUTES = Object.freeze({
+  [PAGES.HOME]: "/",
+  [PAGES.CATALOG]: "/katalog",
+  [PAGES.FINDER]: "/finder",
+  [PAGES.ARTICLES]: "/artikel",
+  [PAGES.DASHBOARD]: "/dashboard",
+  [PAGES.LOGIN]: "/auth/login",
+  [PAGES.REGISTER]: "/auth/register",
+});
 
-const PATH_TO_PAGE = {
-  "/": "Beranda",
-  "/katalog": "Katalog Herbal",
-  "/finder": "Herbal Finder",
-  "/artikel": "Artikel",
-  "/dashboard": "Dashboard",
-  "/auth/login": "Masuk",
-  "/auth/register": "Daftar",
-  "/login": "Masuk",
-  "/register": "Daftar",
-};
+/** Path alternatif yang tetap diterima. */
+const ROUTE_ALIASES = Object.freeze({
+  "/login": PAGES.LOGIN,
+  "/register": PAGES.REGISTER,
+});
+
+const PATH_TO_PAGE = Object.freeze({
+  ...Object.fromEntries(
+    Object.entries(ROUTES).map(([page, path]) => [path, page]),
+  ),
+  ...ROUTE_ALIASES,
+});
 
 /**
  * Mengubah path URL menjadi nama halaman.
