@@ -17,32 +17,38 @@ export default defineConfig({
   },
 
   test: {
+    // Menjalankan test menggunakan environment Node.js.
     environment: "node",
 
+    // Lokasi file pengujian yang benar.
     include: [
-      "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "frontend/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
     ],
 
+    // Konfigurasi coverage.
     coverage: {
       provider: "v8",
 
       reporter: ["text", "html", "lcov"],
 
-      reportsDirectory: "../coverage",
+      // Hasil coverage disimpan di folder coverage root.
+      reportsDirectory: "./coverage",
 
-      // Hanya menghitung coverage file service.
-      include: ["src/services/**/*.{js,jsx,ts,tsx}"],
+      // Hanya file service aplikasi yang dihitung.
+      include: [
+        "frontend/src/services/**/*.{js,jsx,ts,tsx}",
+      ],
 
-      // File pengujian tidak dihitung sebagai kode aplikasi.
+      // File test tidak ikut dihitung sebagai kode aplikasi.
       exclude: [
-        "src/**/*.test.js",
-        "src/**/*.test.jsx",
-        "src/**/*.test.ts",
-        "src/**/*.test.tsx",
-        "src/**/*.spec.js",
-        "src/**/*.spec.jsx",
-        "src/**/*.spec.ts",
-        "src/**/*.spec.tsx",
+        "frontend/src/**/*.test.js",
+        "frontend/src/**/*.test.jsx",
+        "frontend/src/**/*.test.ts",
+        "frontend/src/**/*.test.tsx",
+        "frontend/src/**/*.spec.js",
+        "frontend/src/**/*.spec.jsx",
+        "frontend/src/**/*.spec.ts",
+        "frontend/src/**/*.spec.tsx",
       ],
     },
   },
