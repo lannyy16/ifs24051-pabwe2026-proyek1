@@ -1,17 +1,18 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getHerbs } from "../services/api";
 
-function CatalogPage() {
+export default function CatalogPage() {
   const [herbs, setHerbs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState("Semua");
 
   useEffect(() => {
+    let active = true;
+
     async function fetchHerbs() {
       try {
         setLoading(true);
@@ -19,56 +20,71 @@ function CatalogPage() {
 
         const data = await getHerbs();
 
-        setHerbs(data);
-      } catch (error) {
-        console.error("Gagal mengambil herbal:", error);
-
-        setError(
-          "Gagal mengambil data tanaman herbal."
-        );
+        if (active) {
+          setHerbs(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (active) {
+          setError("Gagal mengambil data tanaman herbal.");
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     fetchHerbs();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const categories = [
-    "Semua",
-    ...new Set(
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(
       herbs
         .map((herb) => herb.category)
-        .filter(Boolean)
-    ),
-  ];
+        .filter(
+          (category) =>
+            typeof category === "string" &&
+            category.trim() !== ""
+        )
+    );
 
-  const keyword = search.trim().toLowerCase();
+    return ["Semua", ...uniqueCategories];
+  }, [herbs]);
 
-  const filteredHerbs = herbs.filter((herb) => {
-    const name = herb.name || "";
-    const scientificName = herb.scientificName || "";
-    const description = herb.description || "";
-    const category = herb.category || "";
+  const filteredHerbs = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
 
-    const matchesSearch =
-      name.toLowerCase().includes(keyword) ||
-      scientificName.toLowerCase().includes(keyword) ||
-      description.toLowerCase().includes(keyword);
+    return herbs.filter((herb) => {
+      const name = herb.name || "";
+      const scientificName = herb.scientificName || "";
+      const description = herb.description || "";
+      const category = herb.category || "";
 
-    const matchesCategory =
-      selectedCategory === "Semua" ||
-      category === selectedCategory;
+      const matchesSearch = [
+        name,
+        scientificName,
+        description,
+      ].some((value) =>
+        value.toLowerCase().includes(keyword)
+      );
 
-    return matchesSearch && matchesCategory;
-  });
+      const matchesCategory =
+        selectedCategory === "Semua" ||
+        category === selectedCategory;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [herbs, search, selectedCategory]);
 
   if (loading) {
     return (
       <main>
         <h1>Katalog Tanaman Herbal</h1>
-
-        <p>Memuat data tanaman herbal...</p>
+        <p role="status">Memuat data tanaman herbal...</p>
       </main>
     );
   }
@@ -77,10 +93,9 @@ function CatalogPage() {
     return (
       <main>
         <h1>Katalog Tanaman Herbal</h1>
-
-        <p>{error}</p>
-
+        <p role="alert">{error}</p>
         <button
+          type="button"
           onClick={() => globalThis.location.reload()}
         >
           Coba Lagi
@@ -91,62 +106,65 @@ function CatalogPage() {
 
   return (
     <main>
-      <section>
-        <h1>Katalog Tanaman Herbal</h1>
-
+      <section aria-labelledby="catalog-title">
+        <h1 id="catalog-title">Katalog Tanaman Herbal</h1>
         <p>
-          Jelajahi berbagai tanaman herbal Nusantara
-          beserta informasi dan manfaat tradisionalnya.
+          Jelajahi tanaman herbal Nusantara, penggunaan
+          tradisional, bukti ilmiah, dan informasi keamanannya.
         </p>
       </section>
 
-      <section>
+      <section aria-label="Pencarian dan filter">
+        <label htmlFor="herb-search">
+          Cari tanaman herbal
+        </label>
         <input
-          type="text"
-          placeholder="Cari nama tanaman herbal..."
+          id="herb-search"
+          type="search"
+          placeholder="Masukkan nama tanaman..."
           value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
+          onChange={(event) => setSearch(event.target.value)}
         />
 
+        <label htmlFor="herb-category">Kategori</label>
         <select
+          id="herb-category"
           value={selectedCategory}
           onChange={(event) =>
             setSelectedCategory(event.target.value)
           }
         >
           {categories.map((category) => (
-            <option
-              key={category}
-              value={category}
-            >
+            <option key={category} value={category}>
               {category}
             </option>
           ))}
         </select>
       </section>
 
-      <section>
+      <section aria-label="Hasil katalog">
         <p>
           Menampilkan {filteredHerbs.length} tanaman herbal
         </p>
 
         {filteredHerbs.length === 0 ? (
-          <p>Tanaman herbal tidak ditemukan.</p>
+          <p role="status">
+            Tanaman herbal tidak ditemukan.
+          </p>
         ) : (
-          <div>
+          <div className="cards">
             {filteredHerbs.map((herb) => (
               <article key={herb.id}>
                 <div
                   style={{
-                    backgroundColor:
-                      herb.color || "#f5f5f5",
+                    backgroundColor: herb.color || "#f5f5f5",
                     padding: "16px",
                     borderRadius: "12px",
                   }}
                 >
-                  <span>{herb.emoji || "🌿"}</span>
+                  <span aria-hidden="true">
+                    {herb.emoji || "🌿"}
+                  </span>
 
                   <h2>{herb.name || "Tanaman Herbal"}</h2>
 
@@ -163,25 +181,23 @@ function CatalogPage() {
                   </p>
 
                   <p>
-                    Kategori: {herb.category || "Belum dikategorikan"}
+                    Kategori:{" "}
+                    {herb.category || "Belum dikategorikan"}
                   </p>
 
                   <h3>Manfaat Tradisional</h3>
-
                   <p>
                     {herb.traditional ||
                       "Informasi manfaat tradisional belum tersedia."}
                   </p>
 
                   <h3>Bukti Ilmiah</h3>
-
                   <p>
                     {herb.evidence ||
                       "Informasi bukti ilmiah belum tersedia."}
                   </p>
 
                   <h3>Keamanan</h3>
-
                   <p>
                     {herb.safety ||
                       "Informasi keamanan belum tersedia."}
@@ -195,5 +211,3 @@ function CatalogPage() {
     </main>
   );
 }
-
-export default CatalogPage;
