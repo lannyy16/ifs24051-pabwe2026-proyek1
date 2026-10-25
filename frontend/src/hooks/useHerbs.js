@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { getHerbs } from "../services/herbService.js";
 
@@ -8,29 +9,47 @@ export default function useHerbs(search = "", reloadKey = 0) {
 
   useEffect(() => {
     const controller = new AbortController();
-    let active = true;
 
-    async function load() {
+    async function loadHerbs() {
       setLoading(true);
       setError("");
+
       try {
-        const data = await getHerbs({ search, signal: controller.signal });
-        if (active) setHerbs(data);
-      } catch (err) {
-        if (active && err?.name !== "AbortError") {
-          setError(err instanceof Error ? err.message : "Terjadi kesalahan saat memuat tanaman.");
+        const data = await getHerbs({
+          search,
+          signal: controller.signal,
+        });
+
+        if (!controller.signal.aborted) {
+          setHerbs(Array.isArray(data) ? data : []);
         }
+      } catch (err) {
+        if (err?.name === "AbortError") {
+          return;
+        }
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan saat memuat tanaman."
+        );
       } finally {
-        if (active) setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
-    load();
+    loadHerbs();
+
     return () => {
-      active = false;
       controller.abort();
     };
   }, [search, reloadKey]);
 
-  return { herbs, loading, error };
+  return {
+    herbs,
+    loading,
+    error,
+  };
 }
