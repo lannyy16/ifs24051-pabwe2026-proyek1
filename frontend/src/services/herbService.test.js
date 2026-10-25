@@ -19,9 +19,16 @@ describe("getHerbs", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(getHerbs()).resolves.toEqual(herbs);
+
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/herbs$/),
-      { signal: undefined }
+      "https://ifs24051-pabwe2026-proyek1-backend.vercel.app/api/herbs",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        signal: undefined,
+      }
     );
   });
 
@@ -41,6 +48,7 @@ describe("getHerbs", () => {
     ]);
 
     const calledUrl = fetchMock.mock.calls[0][0];
+
     expect(calledUrl).toContain("search=kunyit");
   });
 
@@ -55,17 +63,21 @@ describe("getHerbs", () => {
     await expect(getHerbs({ search: "" })).resolves.toEqual([]);
 
     const calledUrl = fetchMock.mock.calls[0][0];
+
     expect(calledUrl).not.toContain("search=");
   });
 
   it("melempar error ketika respons HTTP gagal", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 500 })
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      })
     );
 
     await expect(getHerbs()).rejects.toThrow(
-      "Gagal mengambil data tanaman (HTTP 500)."
+      "Gagal mengambil data herbal (HTTP 500)."
     );
   });
 
@@ -78,7 +90,9 @@ describe("getHerbs", () => {
       })
     );
 
-    await expect(getHerbs()).rejects.toThrow("Format data");
+    await expect(getHerbs()).rejects.toThrow(
+      "Format data herbal dari server tidak valid."
+    );
   });
 
   it("menolak success yang bukan true", async () => {
@@ -90,7 +104,9 @@ describe("getHerbs", () => {
       })
     );
 
-    await expect(getHerbs()).rejects.toThrow("Format data");
+    await expect(getHerbs()).rejects.toThrow(
+      "Format data herbal dari server tidak valid."
+    );
   });
 
   it("menolak data yang bukan array", async () => {
@@ -102,7 +118,9 @@ describe("getHerbs", () => {
       })
     );
 
-    await expect(getHerbs()).rejects.toThrow("Format data");
+    await expect(getHerbs()).rejects.toThrow(
+      "Format data herbal dari server tidak valid."
+    );
   });
 
   it("meneruskan AbortSignal ke fetch", async () => {
@@ -118,8 +136,14 @@ describe("getHerbs", () => {
     await getHerbs({ signal: controller.signal });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/herbs$/),
-      { signal: controller.signal }
+      "https://ifs24051-pabwe2026-proyek1-backend.vercel.app/api/herbs",
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        signal: controller.signal,
+      }
     );
   });
 });
