@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 import {
@@ -8,6 +7,42 @@ import {
   LogIn,
   UserPlus,
 } from "lucide-react";
+
+// Mengambil nilai FormData dan memastikan hasilnya string
+function getFormValue(formData, name) {
+  const value = formData.get(name);
+
+  return typeof value === "string" ? value : "";
+}
+
+// Mengambil seluruh data form
+function getAuthFormData(formData) {
+  return {
+    name: getFormValue(formData, "name").trim(),
+
+    email: getFormValue(formData, "email")
+      .trim()
+      .toLowerCase(),
+
+    password: getFormValue(formData, "password"),
+
+    confirmation: getFormValue(
+      formData,
+      "confirmation"
+    ),
+  };
+}
+
+// Menentukan teks tombol submit
+function getSubmitLabel(isRegister, loading) {
+  if (loading) {
+    return isRegister
+      ? "Memproses pendaftaran..."
+      : "Memproses login...";
+  }
+
+  return isRegister ? "Daftar" : "Masuk";
+}
 
 export default function AuthPage({
   mode,
@@ -20,28 +55,29 @@ export default function AuthPage({
 
   const isRegister = mode === "Daftar";
 
+  // Mengirim data form
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
-    const data = new FormData(event.currentTarget);
+    const formData = new FormData(event.currentTarget);
 
-    const form = {
-      name: String(data.get("name") || "").trim(),
-
-      email: String(data.get("email") || "")
-        .trim()
-        .toLowerCase(),
-
-      password: String(data.get("password") || ""),
-
-      confirmation: String(
-        data.get("confirmation") || ""
-      ),
-    };
+    const form = getAuthFormData(formData);
 
     onSubmit(form);
+  }
+
+  // Menampilkan atau menyembunyikan password
+  function handlePasswordVisibility() {
+    setShowPassword((previousValue) => !previousValue);
+  }
+
+  // Berpindah mode login dan daftar
+  function handleSwitch() {
+    onSwitch(isRegister ? "Masuk" : "Daftar");
   }
 
   return (
@@ -68,6 +104,7 @@ export default function AuthPage({
         </p>
 
         <form onSubmit={handleSubmit}>
+          {/* Nama lengkap */}
           {isRegister && (
             <label htmlFor="name">
               Nama lengkap
@@ -86,6 +123,7 @@ export default function AuthPage({
             </label>
           )}
 
+          {/* Email */}
           <label htmlFor="username">
             Email
 
@@ -101,6 +139,7 @@ export default function AuthPage({
             />
           </label>
 
+          {/* Password */}
           <label htmlFor="password">
             Kata sandi
 
@@ -135,9 +174,7 @@ export default function AuthPage({
                     ? "Sembunyikan kata sandi"
                     : "Tampilkan kata sandi"
                 }
-                onClick={() =>
-                  setShowPassword((value) => !value)
-                }
+                onClick={handlePasswordVisibility}
                 disabled={loading}
               >
                 {showPassword ? (
@@ -149,6 +186,7 @@ export default function AuthPage({
             </span>
           </label>
 
+          {/* Konfirmasi password */}
           {isRegister && (
             <label htmlFor="confirmation">
               Konfirmasi kata sandi
@@ -166,6 +204,7 @@ export default function AuthPage({
             </label>
           )}
 
+          {/* Pesan error */}
           {error && (
             <p
               className="auth-error"
@@ -175,6 +214,7 @@ export default function AuthPage({
             </p>
           )}
 
+          {/* Tombol submit */}
           <button
             id="btn-submit"
             className="primary auth-submit"
@@ -182,11 +222,7 @@ export default function AuthPage({
             disabled={loading}
           >
             {loading ? (
-              <>
-                {isRegister
-                  ? "Memproses pendaftaran..."
-                  : "Memproses login..."}
-              </>
+              getSubmitLabel(isRegister, loading)
             ) : (
               <>
                 {isRegister ? (
@@ -195,28 +231,25 @@ export default function AuthPage({
                   <LogIn size={16} />
                 )}
 
-                {isRegister ? "Daftar" : "Masuk"}
+                {getSubmitLabel(isRegister, loading)}
               </>
             )}
           </button>
         </form>
 
+        {/* Berpindah halaman */}
         <p className="auth-switch">
           {isRegister
             ? "Sudah punya akun?"
-            : "Belum punya akun?"}{" "}
+            : "Belum punya akun?"}
+
+          {" "}
 
           <button
             type="button"
             className="textlink"
             disabled={loading}
-            onClick={() =>
-              onSwitch(
-                isRegister
-                  ? "Masuk"
-                  : "Daftar"
-              )
-            }
+            onClick={handleSwitch}
           >
             {isRegister
               ? "Masuk"
@@ -224,6 +257,7 @@ export default function AuthPage({
           </button>
         </p>
 
+        {/* Informasi keamanan */}
         <p className="auth-disclaimer">
           Akun kamu diproses melalui backend HerbaNusantara.
           Kata sandi disimpan dengan proses hashing
