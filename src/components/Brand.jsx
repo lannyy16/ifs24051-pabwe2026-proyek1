@@ -1,5 +1,5 @@
 
-import PropTypes from "prop-types";
+import { Leaf } from "lucide-react";
 
 export default function Brand({ onClick }) {
   return (
@@ -9,7 +9,7 @@ export default function Brand({ onClick }) {
       onClick={onClick}
     >
       <span className="logo" aria-hidden="true">
-        🌿
+        <Leaf />
       </span>
 
       <span>
@@ -19,7 +19,3 @@ export default function Brand({ onClick }) {
     </button>
   );
 }
-
-Brand.propTypes = {
-  onClick: PropTypes.func,
-};

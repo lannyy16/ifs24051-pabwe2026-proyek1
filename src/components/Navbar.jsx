@@ -1,6 +1,7 @@
 import { ChevronRight, Globe, LogIn, LogOut, UserPlus } from "lucide-react";
 import Brand from "./Brand.jsx";
 
+import PropTypes from "prop-types";
 const NAV_ITEMS = ["Beranda", "Katalog Herbal", "Herbal Finder", "Artikel", "Dashboard"];
 
 export default function Navbar({ page, onNavigate, user, onLogout }) {
@@ -30,3 +31,5 @@ export default function Navbar({ page, onNavigate, user, onLogout }) {
     </header>
   );
 }
+
+Navbar.propTypes = { page: PropTypes.string.isRequired, onNavigate: PropTypes.func.isRequired, user: PropTypes.object, onLogout: PropTypes.func.isRequired };

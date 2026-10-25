@@ -8,31 +8,27 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target:
-          "https://ifs24051-pabwe2026-proyek1-backend.vercel.app",
-        changeOrigin: true,
-        secure: true,
-      },
-    },
+        target: "http://localhost:3000",
+        changeOrigin: true
+      }
+    }
   },
 
   test: {
     environment: "node",
-
-    include: [
-      "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
-    ],
+    include: ["src/**/*.test.{js,jsx,ts,tsx}"],
 
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
 
+      // Mengukur coverage pada service yang diuji
       include: ["src/services/**/*.js"],
 
       exclude: [
         "src/**/*.test.js",
-        "src/**/*.spec.js",
-      ],
-    },
-  },
+        "src/**/*.spec.js"
+      ]
+    }
+  }
 });
