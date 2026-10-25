@@ -1,4 +1,3 @@
-
 import {
   useCallback,
   useEffect,
@@ -46,13 +45,13 @@ const ROUTES = {
 };
 
 const PATH_TO_PAGE = {
-  ...Object.fromEntries(
-    Object.entries(ROUTES).map(([name, path]) => [
-      path,
-      name,
-    ])
-  ),
-
+  "/": "Beranda",
+  "/katalog": "Katalog Herbal",
+  "/finder": "Herbal Finder",
+  "/artikel": "Artikel",
+  "/dashboard": "Dashboard",
+  "/auth/login": "Masuk",
+  "/auth/register": "Daftar",
   "/login": "Masuk",
   "/register": "Daftar",
 };
@@ -72,7 +71,9 @@ function pageFromPath(pathname) {
 
 function readSessionUser() {
   try {
-    const value = sessionStorage.getItem(USER_STORAGE_KEY);
+    const value = globalThis.sessionStorage.getItem(
+      USER_STORAGE_KEY
+    );
 
     return value ? JSON.parse(value) : null;
   } catch {
@@ -81,13 +82,21 @@ function readSessionUser() {
 }
 
 function readToken() {
-  return sessionStorage.getItem(TOKEN_STORAGE_KEY) || "";
+  try {
+    return (
+      globalThis.sessionStorage.getItem(TOKEN_STORAGE_KEY) ||
+      ""
+    );
+  } catch {
+    return "";
+  }
 }
 
 function readSavedIds() {
   try {
     const value = JSON.parse(
-      localStorage.getItem(SAVED_STORAGE_KEY) || "[]"
+      globalThis.localStorage.getItem(SAVED_STORAGE_KEY) ||
+        "[]"
     );
 
     return Array.isArray(value) ? value : [];
@@ -97,20 +106,20 @@ function readSavedIds() {
 }
 
 function saveSession(user, token) {
-  sessionStorage.setItem(
+  globalThis.sessionStorage.setItem(
     USER_STORAGE_KEY,
     JSON.stringify(user)
   );
 
-  sessionStorage.setItem(
+  globalThis.sessionStorage.setItem(
     TOKEN_STORAGE_KEY,
     token
   );
 }
 
 function clearSession() {
-  sessionStorage.removeItem(USER_STORAGE_KEY);
-  sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+  globalThis.sessionStorage.removeItem(USER_STORAGE_KEY);
+  globalThis.sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
 // =====================================================
@@ -119,17 +128,14 @@ function clearSession() {
 
 async function apiRequest(endpoint, options = {}) {
   const token = readToken();
-
-  const headers = {
-    ...(options.headers || {}),
-  };
+  const headers = new Headers(options.headers);
 
   if (options.body) {
-    headers["Content-Type"] = "application/json";
+    headers.set("Content-Type", "application/json");
   }
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   let response;
@@ -140,7 +146,7 @@ async function apiRequest(endpoint, options = {}) {
       headers,
     });
   } catch {
-    throw new Error(
+    throw new TypeError(
       "Tidak dapat terhubung ke backend. Pastikan server berjalan."
     );
   }
@@ -176,23 +182,16 @@ export default function App() {
   // ---------------------------------------------------
 
   const [page, setPage] = useState(() =>
-    pageFromPath(window.location.pathname)
+    pageFromPath(globalThis.location.pathname)
   );
 
   const [search, setSearch] = useState("");
-
   const [category, setCategory] = useState("Semua");
-
   const [selectedHerb, setSelectedHerb] = useState(null);
-
   const [user, setUser] = useState(readSessionUser);
-
   const [savedIds, setSavedIds] = useState(readSavedIds);
-
   const [authError, setAuthError] = useState("");
-
   const [authLoading, setAuthLoading] = useState(false);
-
   const [reloadKey, setReloadKey] = useState(0);
 
   // ---------------------------------------------------
@@ -210,10 +209,14 @@ export default function App() {
   // ---------------------------------------------------
 
   useEffect(() => {
-    localStorage.setItem(
-      SAVED_STORAGE_KEY,
-      JSON.stringify(savedIds)
-    );
+    try {
+      globalThis.localStorage.setItem(
+        SAVED_STORAGE_KEY,
+        JSON.stringify(savedIds)
+      );
+    } catch {
+      // Penyimpanan lokal mungkin tidak tersedia.
+    }
   }, [savedIds]);
 
   // ---------------------------------------------------
@@ -225,7 +228,7 @@ export default function App() {
 
     if (!token) {
       setUser(null);
-      return;
+      return undefined;
     }
 
     let cancelled = false;
@@ -233,9 +236,7 @@ export default function App() {
     async function restoreSession() {
       try {
         const result = await apiRequest("/auth/me");
-
-        const authenticatedUser =
-          result.data?.user;
+        const authenticatedUser = result.data?.user;
 
         if (!authenticatedUser) {
           throw new Error(
@@ -243,16 +244,20 @@ export default function App() {
           );
         }
 
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         setUser(authenticatedUser);
 
-        sessionStorage.setItem(
+        globalThis.sessionStorage.setItem(
           USER_STORAGE_KEY,
           JSON.stringify(authenticatedUser)
         );
       } catch {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         clearSession();
         setUser(null);
@@ -273,20 +278,17 @@ export default function App() {
   useEffect(() => {
     const onPopState = () => {
       setPage(
-        pageFromPath(window.location.pathname)
+        pageFromPath(globalThis.location.pathname)
       );
 
       setSelectedHerb(null);
       setAuthError("");
     };
 
-    window.addEventListener(
-      "popstate",
-      onPopState
-    );
+    globalThis.addEventListener("popstate", onPopState);
 
     return () => {
-      window.removeEventListener(
+      globalThis.removeEventListener(
         "popstate",
         onPopState
       );
@@ -298,7 +300,9 @@ export default function App() {
   // ---------------------------------------------------
 
   useEffect(() => {
-    if (!selectedHerb) return;
+    if (!selectedHerb) {
+      return;
+    }
 
     const updatedHerb = herbs.find(
       (item) => item.id === selectedHerb.id
@@ -319,11 +323,9 @@ export default function App() {
 
       const nextPath = ROUTES[nextPage] || "/";
 
-      if (
-        window.location.pathname !== nextPath
-      ) {
-        window.history.pushState(
-          {},
+      if (globalThis.location.pathname !== nextPath) {
+        globalThis.history.pushState(
+          null,
           "",
           nextPath
         );
@@ -343,7 +345,7 @@ export default function App() {
         }
       }
 
-      window.scrollTo({
+      globalThis.scrollTo({
         top: 0,
         behavior: "smooth",
       });
@@ -371,30 +373,27 @@ export default function App() {
     async (form) => {
       setAuthError("");
 
-      const email = String(form.email || "")
-        .trim()
-        .toLowerCase();
+      const email =
+        typeof form.email === "string"
+          ? form.email.trim().toLowerCase()
+          : "";
 
-      const password = String(
-        form.password || ""
-      );
+      const password =
+        typeof form.password === "string"
+          ? form.password
+          : "";
 
-      const emailRegex =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailRegex.test(email)) {
         setAuthError(
           "Masukkan alamat email yang valid."
         );
-
         return;
       }
 
       if (!password) {
-        setAuthError(
-          "Kata sandi wajib diisi."
-        );
-
+        setAuthError("Kata sandi wajib diisi.");
         return;
       }
 
@@ -403,13 +402,18 @@ export default function App() {
       // -------------------------------------------------
 
       if (page === "Daftar") {
-        const name = String(form.name || "").trim();
+        const name =
+          typeof form.name === "string"
+            ? form.name.trim()
+            : "";
+
+        const confirmation =
+          typeof form.confirmation === "string"
+            ? form.confirmation
+            : "";
 
         if (name.length < 2) {
-          setAuthError(
-            "Nama minimal 2 karakter."
-          );
-
+          setAuthError("Nama minimal 2 karakter.");
           return;
         }
 
@@ -417,17 +421,13 @@ export default function App() {
           setAuthError(
             "Kata sandi harus minimal 8 karakter."
           );
-
           return;
         }
 
-        if (
-          password !== String(form.confirmation || "")
-        ) {
+        if (password !== confirmation) {
           setAuthError(
             "Konfirmasi kata sandi tidak cocok."
           );
-
           return;
         }
 
@@ -438,7 +438,6 @@ export default function App() {
             "/auth/register",
             {
               method: "POST",
-
               body: JSON.stringify({
                 name,
                 email,
@@ -447,9 +446,7 @@ export default function App() {
             }
           );
 
-          const authenticatedUser =
-            result.data?.user;
-
+          const authenticatedUser = result.data?.user;
           const token = result.data?.token;
 
           if (!authenticatedUser || !token) {
@@ -458,16 +455,15 @@ export default function App() {
             );
           }
 
-          saveSession(
-            authenticatedUser,
-            token
-          );
-
+          saveSession(authenticatedUser, token);
           setUser(authenticatedUser);
-
           navigate("Dashboard");
-        } catch (error) {
-          setAuthError(error.message);
+        } catch (requestError) {
+          setAuthError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Registrasi gagal. Silakan coba lagi."
+          );
         } finally {
           setAuthLoading(false);
         }
@@ -486,7 +482,6 @@ export default function App() {
           "/auth/login",
           {
             method: "POST",
-
             body: JSON.stringify({
               email,
               password,
@@ -494,9 +489,7 @@ export default function App() {
           }
         );
 
-        const authenticatedUser =
-          result.data?.user;
-
+        const authenticatedUser = result.data?.user;
         const token = result.data?.token;
 
         if (!authenticatedUser || !token) {
@@ -505,16 +498,15 @@ export default function App() {
           );
         }
 
-        saveSession(
-          authenticatedUser,
-          token
-        );
-
+        saveSession(authenticatedUser, token);
         setUser(authenticatedUser);
-
         navigate("Dashboard");
-      } catch (error) {
-        setAuthError(error.message);
+      } catch (requestError) {
+        setAuthError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Login gagal. Silakan coba lagi."
+        );
       } finally {
         setAuthLoading(false);
       }
@@ -528,11 +520,8 @@ export default function App() {
 
   const logout = useCallback(() => {
     clearSession();
-
     setUser(null);
-
     setAuthError("");
-
     navigate("Beranda");
   }, [navigate]);
 
@@ -591,9 +580,7 @@ export default function App() {
         onToggleSave={toggleSaved}
         loading={loading}
         error={error}
-        onRetry={() =>
-          setReloadKey((key) => key + 1)
-        }
+        onRetry={() => setReloadKey((key) => key + 1)}
       />
     );
 
@@ -606,9 +593,7 @@ export default function App() {
       <FinderPage
         onChooseTopic={(keyword) => {
           setSearch(keyword);
-
           setCategory("Semua");
-
           navigate("Katalog Herbal");
         }}
       />
@@ -686,9 +671,7 @@ export default function App() {
         {content}
       </main>
 
-      <Footer
-        onNavigate={navigate}
-      />
+      <Footer onNavigate={navigate} />
     </>
   );
 }
