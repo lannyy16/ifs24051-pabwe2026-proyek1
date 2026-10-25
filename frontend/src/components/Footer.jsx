@@ -1,13 +1,23 @@
-import Brand from "./Brand.jsx";
+
+import PropTypes from "prop-types";
 
 export default function Footer({ onNavigate }) {
   return (
-    <footer>
-      <div className="wrap foot">
-        <Brand onClick={() => onNavigate("Beranda")} />
-        <p>Pengetahuan herbal untuk edukasi yang lebih bijak.</p>
-        <small>© {new Date().getFullYear()} HerbaNusantara · Informasi bukan pengganti konsultasi medis.</small>
-      </div>
+    <footer className="footer">
+      <p>
+        © {new Date().getFullYear()} HerbaNusantara
+      </p>
+      <button
+        type="button"
+        className="textlink"
+        onClick={() => onNavigate("Beranda")}
+      >
+        Kembali ke Beranda
+      </button>
     </footer>
   );
 }
+
+Footer.propTypes = {
+  onNavigate: PropTypes.func.isRequired,
+};
