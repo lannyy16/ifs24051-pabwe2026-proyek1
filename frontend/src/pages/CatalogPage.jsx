@@ -8,7 +8,8 @@ function CatalogPage() {
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategory, setSelectedCategory] =
+    useState("Semua");
 
   useEffect(() => {
     async function fetchHerbs() {
@@ -21,7 +22,10 @@ function CatalogPage() {
         setHerbs(data);
       } catch (error) {
         console.error("Gagal mengambil herbal:", error);
-        setError("Gagal mengambil data tanaman herbal.");
+
+        setError(
+          "Gagal mengambil data tanaman herbal."
+        );
       } finally {
         setLoading(false);
       }
@@ -32,20 +36,29 @@ function CatalogPage() {
 
   const categories = [
     "Semua",
-    ...new Set(herbs.map((herb) => herb.category)),
+    ...new Set(
+      herbs
+        .map((herb) => herb.category)
+        .filter(Boolean)
+    ),
   ];
 
+  const keyword = search.trim().toLowerCase();
+
   const filteredHerbs = herbs.filter((herb) => {
-    const keyword = search.toLowerCase();
+    const name = herb.name || "";
+    const scientificName = herb.scientificName || "";
+    const description = herb.description || "";
+    const category = herb.category || "";
 
     const matchesSearch =
-      herb.name.toLowerCase().includes(keyword) ||
-      herb.scientificName.toLowerCase().includes(keyword) ||
-      herb.description.toLowerCase().includes(keyword);
+      name.toLowerCase().includes(keyword) ||
+      scientificName.toLowerCase().includes(keyword) ||
+      description.toLowerCase().includes(keyword);
 
     const matchesCategory =
       selectedCategory === "Semua" ||
-      herb.category === selectedCategory;
+      category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -54,6 +67,7 @@ function CatalogPage() {
     return (
       <main>
         <h1>Katalog Tanaman Herbal</h1>
+
         <p>Memuat data tanaman herbal...</p>
       </main>
     );
@@ -63,9 +77,12 @@ function CatalogPage() {
     return (
       <main>
         <h1>Katalog Tanaman Herbal</h1>
+
         <p>{error}</p>
 
-        <button onClick={() => window.location.reload()}>
+        <button
+          onClick={() => globalThis.location.reload()}
+        >
           Coba Lagi
         </button>
       </main>
@@ -88,7 +105,9 @@ function CatalogPage() {
           type="text"
           placeholder="Cari nama tanaman herbal..."
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
         />
 
         <select
@@ -98,7 +117,10 @@ function CatalogPage() {
           }
         >
           {categories.map((category) => (
-            <option key={category} value={category}>
+            <option
+              key={category}
+              value={category}
+            >
               {category}
             </option>
           ))}
@@ -118,36 +140,52 @@ function CatalogPage() {
               <article key={herb.id}>
                 <div
                   style={{
-                    backgroundColor: herb.color || "#f5f5f5",
+                    backgroundColor:
+                      herb.color || "#f5f5f5",
                     padding: "16px",
                     borderRadius: "12px",
                   }}
                 >
-                  <span>{herb.emoji}</span>
+                  <span>{herb.emoji || "🌿"}</span>
 
-                  <h2>{herb.name}</h2>
+                  <h2>{herb.name || "Tanaman Herbal"}</h2>
 
                   <p>
-                    <i>{herb.scientificName}</i>
+                    <i>
+                      {herb.scientificName ||
+                        "Nama ilmiah belum tersedia"}
+                    </i>
                   </p>
 
-                  <p>{herb.description}</p>
+                  <p>
+                    {herb.description ||
+                      "Deskripsi belum tersedia."}
+                  </p>
 
                   <p>
-                    Kategori: {herb.category}
+                    Kategori: {herb.category || "Belum dikategorikan"}
                   </p>
 
                   <h3>Manfaat Tradisional</h3>
 
-                  <p>{herb.traditional}</p>
+                  <p>
+                    {herb.traditional ||
+                      "Informasi manfaat tradisional belum tersedia."}
+                  </p>
 
                   <h3>Bukti Ilmiah</h3>
 
-                  <p>{herb.evidence}</p>
+                  <p>
+                    {herb.evidence ||
+                      "Informasi bukti ilmiah belum tersedia."}
+                  </p>
 
                   <h3>Keamanan</h3>
 
-                  <p>{herb.safety}</p>
+                  <p>
+                    {herb.safety ||
+                      "Informasi keamanan belum tersedia."}
+                  </p>
                 </div>
               </article>
             ))}

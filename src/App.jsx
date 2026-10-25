@@ -1,3 +1,4 @@
+
 import {
   useCallback,
   useEffect,
@@ -58,9 +59,7 @@ const PATH_TO_PAGE = {
 
 function pageFromPath(pathname) {
   const cleanPath =
-    (pathname || "/")
-      .toLowerCase()
-      .replace(/\/+$/, "") || "/";
+    (pathname || "/").toLowerCase().replace(/\/+$/, "") || "/";
 
   return PATH_TO_PAGE[cleanPath] || "Beranda";
 }
@@ -84,8 +83,7 @@ function readSessionUser() {
 function readToken() {
   try {
     return (
-      globalThis.sessionStorage.getItem(TOKEN_STORAGE_KEY) ||
-      ""
+      globalThis.sessionStorage.getItem(TOKEN_STORAGE_KEY) || ""
     );
   } catch {
     return "";
@@ -95,8 +93,7 @@ function readToken() {
 function readSavedIds() {
   try {
     const value = JSON.parse(
-      globalThis.localStorage.getItem(SAVED_STORAGE_KEY) ||
-        "[]"
+      globalThis.localStorage.getItem(SAVED_STORAGE_KEY) || "[]"
     );
 
     return Array.isArray(value) ? value : [];
@@ -173,6 +170,307 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 // =====================================================
+// AUTH HELPERS
+// =====================================================
+
+function getStringValue(value) {
+  return typeof value === "string" ? value : "";
+}
+
+function validateAuthForm(form, isRegister) {
+  const email = getStringValue(form.email)
+    .trim()
+    .toLowerCase();
+
+  const password = getStringValue(form.password);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    return {
+      error: "Masukkan alamat email yang valid.",
+    };
+  }
+
+  if (!password) {
+    return {
+      error: "Kata sandi wajib diisi.",
+    };
+  }
+
+  if (!isRegister) {
+    return {
+      email,
+      password,
+    };
+  }
+
+  const name = getStringValue(form.name).trim();
+  const confirmation = getStringValue(form.confirmation);
+
+  if (name.length < 2) {
+    return {
+      error: "Nama minimal 2 karakter.",
+    };
+  }
+
+  if (password.length < 8) {
+    return {
+      error: "Kata sandi harus minimal 8 karakter.",
+    };
+  }
+
+  if (password !== confirmation) {
+    return {
+      error: "Konfirmasi kata sandi tidak cocok.",
+    };
+  }
+
+  return {
+    name,
+    email,
+    password,
+  };
+}
+
+function getAuthError(requestError, fallback) {
+  return requestError instanceof Error
+    ? requestError.message
+    : fallback;
+}
+
+function getAuthResult(result) {
+  const authenticatedUser = result.data?.user;
+  const token = result.data?.token;
+
+  if (!authenticatedUser || !token) {
+    throw new Error(
+      "Autentikasi berhasil, tetapi data pengguna atau token tidak lengkap."
+    );
+  }
+
+  return {
+    authenticatedUser,
+    token,
+  };
+}
+
+async function registerUser(form) {
+  const result = await apiRequest("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(form),
+  });
+
+  return getAuthResult(result);
+}
+
+async function loginUser(form) {
+  const result = await apiRequest("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(form),
+  });
+
+  return getAuthResult(result);
+}
+
+// =====================================================
+// PAGE CONTENT
+// =====================================================
+
+function HomeContent({ herbs, navigate, setSelectedHerb }) {
+  return (
+    <HomePage
+      herbs={herbs}
+      onNavigate={navigate}
+      onSelectHerb={setSelectedHerb}
+    />
+  );
+}
+
+function CatalogContent({
+  herbs,
+  search,
+  setSearch,
+  category,
+  setCategory,
+  setSelectedHerb,
+  savedIds,
+  toggleSaved,
+  loading,
+  error,
+  setReloadKey,
+}) {
+  return (
+    <CatalogPage
+      herbs={herbs}
+      search={search}
+      onSearch={setSearch}
+      category={category}
+      onCategory={setCategory}
+      onSelectHerb={setSelectedHerb}
+      savedIds={savedIds}
+      onToggleSave={toggleSaved}
+      loading={loading}
+      error={error}
+      onRetry={() => setReloadKey((key) => key + 1)}
+    />
+  );
+}
+
+function FinderContent({ setSearch, setCategory, navigate }) {
+  const handleChooseTopic = (keyword) => {
+    setSearch(keyword);
+    setCategory("Semua");
+    navigate("Katalog Herbal");
+  };
+
+  return <FinderPage onChooseTopic={handleChooseTopic} />;
+}
+
+function DashboardContent({
+  user,
+  herbs,
+  savedIds,
+  setSelectedHerb,
+  toggleSaved,
+  navigate,
+}) {
+  return (
+    <DashboardPage
+      user={user}
+      herbs={herbs}
+      savedIds={savedIds}
+      onSelectHerb={setSelectedHerb}
+      onToggleSave={toggleSaved}
+      onNavigate={navigate}
+    />
+  );
+}
+
+function AuthContent({
+  page,
+  handleAuth,
+  authError,
+  navigate,
+  authLoading,
+}) {
+  return (
+    <AuthPage
+      mode={page}
+      onSubmit={handleAuth}
+      error={authError}
+      onSwitch={navigate}
+      loading={authLoading}
+    />
+  );
+}
+
+function renderPage({
+  page,
+  selectedHerb,
+  herbs,
+  loading,
+  error,
+  search,
+  setSearch,
+  category,
+  setCategory,
+  savedIds,
+  toggleSaved,
+  setSelectedHerb,
+  setReloadKey,
+  user,
+  navigate,
+  handleAuth,
+  authError,
+  authLoading,
+}) {
+  if (selectedHerb) {
+    return (
+      <HerbDetailModal
+        herb={selectedHerb}
+        onClose={() => setSelectedHerb(null)}
+        saved={savedIds.includes(selectedHerb.id)}
+        onToggleSave={toggleSaved}
+      />
+    );
+  }
+
+  switch (page) {
+    case "Beranda":
+      return (
+        <HomeContent
+          herbs={herbs}
+          navigate={navigate}
+          setSelectedHerb={setSelectedHerb}
+        />
+      );
+
+    case "Katalog Herbal":
+      return (
+        <CatalogContent
+          herbs={herbs}
+          search={search}
+          setSearch={setSearch}
+          category={category}
+          setCategory={setCategory}
+          setSelectedHerb={setSelectedHerb}
+          savedIds={savedIds}
+          toggleSaved={toggleSaved}
+          loading={loading}
+          error={error}
+          setReloadKey={setReloadKey}
+        />
+      );
+
+    case "Herbal Finder":
+      return (
+        <FinderContent
+          setSearch={setSearch}
+          setCategory={setCategory}
+          navigate={navigate}
+        />
+      );
+
+    case "Artikel":
+      return <ArticlesPage />;
+
+    case "Dashboard":
+      return (
+        <DashboardContent
+          user={user}
+          herbs={herbs}
+          savedIds={savedIds}
+          setSelectedHerb={setSelectedHerb}
+          toggleSaved={toggleSaved}
+          navigate={navigate}
+        />
+      );
+
+    case "Masuk":
+    case "Daftar":
+      return (
+        <AuthContent
+          page={page}
+          handleAuth={handleAuth}
+          authError={authError}
+          navigate={navigate}
+          authLoading={authLoading}
+        />
+      );
+
+    default:
+      return (
+        <HomeContent
+          herbs={herbs}
+          navigate={navigate}
+          setSelectedHerb={setSelectedHerb}
+        />
+      );
+  }
+}
+
+// =====================================================
 // APP
 // =====================================================
 
@@ -239,9 +537,7 @@ export default function App() {
         const authenticatedUser = result.data?.user;
 
         if (!authenticatedUser) {
-          throw new Error(
-            "Data pengguna tidak ditemukan."
-          );
+          throw new Error("Data pengguna tidak ditemukan.");
         }
 
         if (cancelled) {
@@ -277,10 +573,7 @@ export default function App() {
 
   useEffect(() => {
     const onPopState = () => {
-      setPage(
-        pageFromPath(globalThis.location.pathname)
-      );
-
+      setPage(pageFromPath(globalThis.location.pathname));
       setSelectedHerb(null);
       setAuthError("");
     };
@@ -288,10 +581,7 @@ export default function App() {
     globalThis.addEventListener("popstate", onPopState);
 
     return () => {
-      globalThis.removeEventListener(
-        "popstate",
-        onPopState
-      );
+      globalThis.removeEventListener("popstate", onPopState);
     };
   }, []);
 
@@ -324,11 +614,7 @@ export default function App() {
       const nextPath = ROUTES[nextPage] || "/";
 
       if (globalThis.location.pathname !== nextPath) {
-        globalThis.history.pushState(
-          null,
-          "",
-          nextPath
-        );
+        globalThis.history.pushState(null, "", nextPath);
       }
 
       setSelectedHerb(null);
@@ -337,10 +623,7 @@ export default function App() {
       if (nextPage === "Katalog Herbal") {
         setCategory(nextCategory || "Semua");
 
-        if (
-          nextCategory &&
-          nextCategory !== "Semua"
-        ) {
+        if (nextCategory && nextCategory !== "Semua") {
           setSearch("");
         }
       }
@@ -373,140 +656,34 @@ export default function App() {
     async (form) => {
       setAuthError("");
 
-      const email =
-        typeof form.email === "string"
-          ? form.email.trim().toLowerCase()
-          : "";
+      const isRegister = page === "Daftar";
+      const validatedForm = validateAuthForm(form, isRegister);
 
-      const password =
-        typeof form.password === "string"
-          ? form.password
-          : "";
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!emailRegex.test(email)) {
-        setAuthError(
-          "Masukkan alamat email yang valid."
-        );
+      if (validatedForm.error) {
+        setAuthError(validatedForm.error);
         return;
       }
-
-      if (!password) {
-        setAuthError("Kata sandi wajib diisi.");
-        return;
-      }
-
-      // -------------------------------------------------
-      // REGISTER
-      // -------------------------------------------------
-
-      if (page === "Daftar") {
-        const name =
-          typeof form.name === "string"
-            ? form.name.trim()
-            : "";
-
-        const confirmation =
-          typeof form.confirmation === "string"
-            ? form.confirmation
-            : "";
-
-        if (name.length < 2) {
-          setAuthError("Nama minimal 2 karakter.");
-          return;
-        }
-
-        if (password.length < 8) {
-          setAuthError(
-            "Kata sandi harus minimal 8 karakter."
-          );
-          return;
-        }
-
-        if (password !== confirmation) {
-          setAuthError(
-            "Konfirmasi kata sandi tidak cocok."
-          );
-          return;
-        }
-
-        setAuthLoading(true);
-
-        try {
-          const result = await apiRequest(
-            "/auth/register",
-            {
-              method: "POST",
-              body: JSON.stringify({
-                name,
-                email,
-                password,
-              }),
-            }
-          );
-
-          const authenticatedUser = result.data?.user;
-          const token = result.data?.token;
-
-          if (!authenticatedUser || !token) {
-            throw new Error(
-              "Registrasi berhasil, tetapi data autentikasi tidak lengkap."
-            );
-          }
-
-          saveSession(authenticatedUser, token);
-          setUser(authenticatedUser);
-          navigate("Dashboard");
-        } catch (requestError) {
-          setAuthError(
-            requestError instanceof Error
-              ? requestError.message
-              : "Registrasi gagal. Silakan coba lagi."
-          );
-        } finally {
-          setAuthLoading(false);
-        }
-
-        return;
-      }
-
-      // -------------------------------------------------
-      // LOGIN
-      // -------------------------------------------------
 
       setAuthLoading(true);
 
       try {
-        const result = await apiRequest(
-          "/auth/login",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              email,
-              password,
-            }),
-          }
+        const authResult = isRegister
+          ? await registerUser(validatedForm)
+          : await loginUser(validatedForm);
+
+        saveSession(
+          authResult.authenticatedUser,
+          authResult.token
         );
 
-        const authenticatedUser = result.data?.user;
-        const token = result.data?.token;
-
-        if (!authenticatedUser || !token) {
-          throw new Error(
-            "Login berhasil, tetapi data autentikasi tidak lengkap."
-          );
-        }
-
-        saveSession(authenticatedUser, token);
-        setUser(authenticatedUser);
+        setUser(authResult.authenticatedUser);
         navigate("Dashboard");
       } catch (requestError) {
-        setAuthError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Login gagal. Silakan coba lagi."
-        );
+        const fallback = isRegister
+          ? "Registrasi gagal. Silakan coba lagi."
+          : "Login gagal. Silakan coba lagi.";
+
+        setAuthError(getAuthError(requestError, fallback));
       } finally {
         setAuthLoading(false);
       }
@@ -529,130 +706,45 @@ export default function App() {
   // PAGE
   // ---------------------------------------------------
 
-  const catalogPage = useMemo(
-    () => page === "Katalog Herbal",
-    [page]
+  const content = useMemo(
+    () =>
+      renderPage({
+        page,
+        selectedHerb,
+        herbs,
+        loading,
+        error,
+        search,
+        setSearch,
+        category,
+        setCategory,
+        savedIds,
+        toggleSaved,
+        setSelectedHerb,
+        setReloadKey,
+        user,
+        navigate,
+        handleAuth,
+        authError,
+        authLoading,
+      }),
+    [
+      page,
+      selectedHerb,
+      herbs,
+      loading,
+      error,
+      search,
+      category,
+      savedIds,
+      toggleSaved,
+      user,
+      navigate,
+      handleAuth,
+      authError,
+      authLoading,
+    ]
   );
-
-  let content;
-
-  // ---------------------------------------------------
-  // HERB DETAIL
-  // ---------------------------------------------------
-
-  if (selectedHerb) {
-    content = (
-      <HerbDetailModal
-        herb={selectedHerb}
-        onClose={() => setSelectedHerb(null)}
-        saved={savedIds.includes(selectedHerb.id)}
-        onToggleSave={toggleSaved}
-      />
-    );
-
-  // ---------------------------------------------------
-  // HOME
-  // ---------------------------------------------------
-
-  } else if (page === "Beranda") {
-    content = (
-      <HomePage
-        herbs={herbs}
-        onNavigate={navigate}
-        onSelectHerb={setSelectedHerb}
-      />
-    );
-
-  // ---------------------------------------------------
-  // CATALOG
-  // ---------------------------------------------------
-
-  } else if (catalogPage) {
-    content = (
-      <CatalogPage
-        herbs={herbs}
-        search={search}
-        onSearch={setSearch}
-        category={category}
-        onCategory={setCategory}
-        onSelectHerb={setSelectedHerb}
-        savedIds={savedIds}
-        onToggleSave={toggleSaved}
-        loading={loading}
-        error={error}
-        onRetry={() => setReloadKey((key) => key + 1)}
-      />
-    );
-
-  // ---------------------------------------------------
-  // FINDER
-  // ---------------------------------------------------
-
-  } else if (page === "Herbal Finder") {
-    content = (
-      <FinderPage
-        onChooseTopic={(keyword) => {
-          setSearch(keyword);
-          setCategory("Semua");
-          navigate("Katalog Herbal");
-        }}
-      />
-    );
-
-  // ---------------------------------------------------
-  // ARTICLES
-  // ---------------------------------------------------
-
-  } else if (page === "Artikel") {
-    content = <ArticlesPage />;
-
-  // ---------------------------------------------------
-  // DASHBOARD
-  // ---------------------------------------------------
-
-  } else if (page === "Dashboard") {
-    content = (
-      <DashboardPage
-        user={user}
-        herbs={herbs}
-        savedIds={savedIds}
-        onSelectHerb={setSelectedHerb}
-        onToggleSave={toggleSaved}
-        onNavigate={navigate}
-      />
-    );
-
-  // ---------------------------------------------------
-  // AUTH
-  // ---------------------------------------------------
-
-  } else if (
-    page === "Masuk" ||
-    page === "Daftar"
-  ) {
-    content = (
-      <AuthPage
-        mode={page}
-        onSubmit={handleAuth}
-        error={authError}
-        onSwitch={navigate}
-        loading={authLoading}
-      />
-    );
-
-  // ---------------------------------------------------
-  // DEFAULT
-  // ---------------------------------------------------
-
-  } else {
-    content = (
-      <HomePage
-        herbs={herbs}
-        onNavigate={navigate}
-        onSelectHerb={setSelectedHerb}
-      />
-    );
-  }
 
   // ---------------------------------------------------
   // RENDER
@@ -667,9 +759,7 @@ export default function App() {
         onLogout={logout}
       />
 
-      <main className="wrap">
-        {content}
-      </main>
+      <main className="wrap">{content}</main>
 
       <Footer onNavigate={navigate} />
     </>

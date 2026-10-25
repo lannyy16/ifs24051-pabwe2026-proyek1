@@ -1,31 +1,47 @@
 
-const API_ORIGIN = (
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:3000"
-).replace(/\/+$/, "");
-
-const API_BASE_URL = API_ORIGIN.endsWith("/api")
-  ? API_ORIGIN
-  : `${API_ORIGIN}/api`;
-
 export const TOKEN_KEY = "herbanusantara-token";
 
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api"
+).replace(/\/+$/, "");
+
 /**
- * Fungsi utama untuk request ke backend.
- * Digunakan untuk login, register, profile, dan endpoint lainnya.
+ * Mengambil token autentikasi dari sessionStorage.
  */
-export async function apiRequest(path, options = {}) {
-  const token = sessionStorage.getItem(TOKEN_KEY);
+function getAuthToken() {
+  try {
+    return globalThis.sessionStorage?.getItem(TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Mengirim request ke backend.
+ *
+ * @param {string} endpoint
+ * @param {object} options
+ * @returns {Promise<any>}
+ */
+export async function apiRequest(endpoint, options = {}) {
+  const {
+    headers: customHeaders = {},
+    ...requestOptions
+  } = options;
+
+  const token = getAuthToken();
 
   const headers = {
     Accept: "application/json",
-    ...options.headers,
+    ...customHeaders
   };
 
-  if (options.body) {
+  // Tambahkan Content-Type jika request memiliki body.
+  if (requestOptions.body && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
 
+  // Tambahkan token autentikasi.
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -33,12 +49,13 @@ export async function apiRequest(path, options = {}) {
   let response;
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      headers,
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...requestOptions,
+      headers
     });
   } catch (error) {
-    if (error.name === "AbortError") {
+    // Jangan mengubah AbortError menjadi Error biasa.
+    if (error?.name === "AbortError") {
       throw error;
     }
 
@@ -47,56 +64,95 @@ export async function apiRequest(path, options = {}) {
     );
   }
 
-  let result;
+  let data;
 
   try {
-    result = await response.json();
+    data = await response.json();
   } catch {
     throw new Error("Response backend tidak valid.");
   }
 
-  if (!response.ok || result?.success === false) {
+  // Periksa status HTTP.
+  if (!response.ok) {
+    const message =
+      data?.message ||
+      data?.error ||
+      `Request gagal dengan status ${response.status}.`;
+
+    throw new Error(message);
+  }
+
+  // Periksa status keberhasilan dari backend.
+  if (data?.success === false) {
     throw new Error(
-      result?.message ||
-        `Request gagal dengan status ${response.status}.`
+      data.message || "Request API gagal."
     );
   }
 
-  return result;
+  return data;
 }
 
 /**
- * Mengambil seluruh data herbal dari backend.
- * Digunakan oleh CatalogPage dan useHerbs.
+ * Mengambil daftar herbal dari backend.
+ *
+ * @param {object} params
+ * @returns {Promise<Array>}
  */
-export async function getHerbs({
-  search = "",
-  signal,
-} = {}) {
-  const params = new URLSearchParams();
+export async function getHerbs(params = {}) {
+  const {
+    search = "",
+    signal,
+    ...otherParams
+  } = params;
 
-  const keyword = String(search || "").trim();
+  const query = new URLSearchParams();
 
-  if (keyword) {
-    params.set("search", keyword);
+  // Pencarian harus dipangkas terlebih dahulu.
+  const trimmedSearch =
+    typeof search === "string"
+      ? search.trim()
+      : search;
+
+  if (
+    trimmedSearch !== undefined &&
+    trimmedSearch !== null &&
+    trimmedSearch !== ""
+  ) {
+    query.set("search", String(trimmedSearch));
   }
 
-  const query = params.toString();
-
-  const endpoint = query
-    ? `/herbs?${query}`
-    : "/herbs";
-
-  const result = await apiRequest(endpoint, {
-    method: "GET",
-    signal,
+  // Parameter tambahan yang bukan AbortSignal.
+  Object.entries(otherParams).forEach(([key, value]) => {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== ""
+    ) {
+      query.set(key, String(value));
+    }
   });
 
-  if (!Array.isArray(result.data)) {
-    throw new Error(
+  const queryString = query.toString();
+
+  const endpoint = queryString
+    ? `/herbs?${queryString}`
+    : "/herbs";
+
+  // Signal diteruskan sebagai fetch option,
+  // bukan sebagai parameter URL.
+  const result = await apiRequest(endpoint, {
+    method: "GET",
+    ...(signal ? { signal } : {})
+  });
+
+  const herbs = result?.data;
+
+  // Validasi data herbal.
+  if (!Array.isArray(herbs)) {
+    throw new TypeError(
       "Data herbal dari backend tidak valid."
     );
   }
 
-  return result.data;
+  return herbs;
 }

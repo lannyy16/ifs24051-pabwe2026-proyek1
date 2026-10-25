@@ -9,6 +9,44 @@ import {
   UserPlus,
 } from "lucide-react";
 
+// =====================================================
+// FORM HELPER
+// =====================================================
+
+function getFormString(data, name) {
+  const value = data.get(name);
+
+  return typeof value === "string" ? value : "";
+}
+
+function getAuthForm(data) {
+  return {
+    name: getFormString(data, "name").trim(),
+
+    email: getFormString(data, "email")
+      .trim()
+      .toLowerCase(),
+
+    password: getFormString(data, "password"),
+
+    confirmation: getFormString(data, "confirmation"),
+  };
+}
+
+function getSubmitLabel(isRegister, loading) {
+  if (loading) {
+    return isRegister
+      ? "Memproses pendaftaran..."
+      : "Memproses login...";
+  }
+
+  return isRegister ? "Daftar" : "Masuk";
+}
+
+// =====================================================
+// AUTH PAGE
+// =====================================================
+
 export default function AuthPage({
   mode,
   onSubmit,
@@ -20,29 +58,42 @@ export default function AuthPage({
 
   const isRegister = mode === "Daftar";
 
+  // ---------------------------------------------------
+  // SUBMIT
+  // ---------------------------------------------------
+
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     const data = new FormData(event.currentTarget);
-
-    const form = {
-      name: String(data.get("name") || "").trim(),
-
-      email: String(data.get("email") || "")
-        .trim()
-        .toLowerCase(),
-
-      password: String(data.get("password") || ""),
-
-      confirmation: String(
-        data.get("confirmation") || ""
-      ),
-    };
+    const form = getAuthForm(data);
 
     onSubmit(form);
   }
+
+  // ---------------------------------------------------
+  // PASSWORD VISIBILITY
+  // ---------------------------------------------------
+
+  function togglePasswordVisibility() {
+    setShowPassword((value) => !value);
+  }
+
+  // ---------------------------------------------------
+  // SWITCH AUTH
+  // ---------------------------------------------------
+
+  function handleSwitch() {
+    onSwitch(isRegister ? "Masuk" : "Daftar");
+  }
+
+  // ---------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------
 
   return (
     <section className="section catalog auth-page">
@@ -51,9 +102,7 @@ export default function AuthPage({
           <Leaf />
         </div>
 
-        <p className="eyebrow">
-          HERBANUSANTARA
-        </p>
+        <p className="eyebrow">HERBANUSANTARA</p>
 
         <h1>
           {isRegister
@@ -71,7 +120,6 @@ export default function AuthPage({
           {isRegister && (
             <label htmlFor="name">
               Nama lengkap
-
               <input
                 id="name"
                 name="name"
@@ -88,7 +136,6 @@ export default function AuthPage({
 
           <label htmlFor="username">
             Email
-
             <input
               id="username"
               name="email"
@@ -103,16 +150,11 @@ export default function AuthPage({
 
           <label htmlFor="password">
             Kata sandi
-
             <span className="password-field">
               <input
                 id="password"
                 name="password"
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
+                type={showPassword ? "text" : "password"}
                 autoComplete={
                   isRegister
                     ? "new-password"
@@ -135,9 +177,7 @@ export default function AuthPage({
                     ? "Sembunyikan kata sandi"
                     : "Tampilkan kata sandi"
                 }
-                onClick={() =>
-                  setShowPassword((value) => !value)
-                }
+                onClick={togglePasswordVisibility}
                 disabled={loading}
               >
                 {showPassword ? (
@@ -152,7 +192,6 @@ export default function AuthPage({
           {isRegister && (
             <label htmlFor="confirmation">
               Konfirmasi kata sandi
-
               <input
                 id="confirmation"
                 name="confirmation"
@@ -167,10 +206,7 @@ export default function AuthPage({
           )}
 
           {error && (
-            <p
-              className="auth-error"
-              role="alert"
-            >
+            <p className="auth-error" role="alert">
               {error}
             </p>
           )}
@@ -182,11 +218,7 @@ export default function AuthPage({
             disabled={loading}
           >
             {loading ? (
-              <>
-                {isRegister
-                  ? "Memproses pendaftaran..."
-                  : "Memproses login..."}
-              </>
+              getSubmitLabel(isRegister, loading)
             ) : (
               <>
                 {isRegister ? (
@@ -195,7 +227,7 @@ export default function AuthPage({
                   <LogIn size={16} />
                 )}
 
-                {isRegister ? "Daftar" : "Masuk"}
+                {getSubmitLabel(isRegister, loading)}
               </>
             )}
           </button>
@@ -210,13 +242,7 @@ export default function AuthPage({
             type="button"
             className="textlink"
             disabled={loading}
-            onClick={() =>
-              onSwitch(
-                isRegister
-                  ? "Masuk"
-                  : "Daftar"
-              )
-            }
+            onClick={handleSwitch}
           >
             {isRegister
               ? "Masuk"
