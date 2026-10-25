@@ -1,0 +1,11 @@
+/* Titik masuk stylesheet. Urutan impor menentukan urutan cascade. */
+@import "./base.css";
+@import "./navbar.css";
+@import "./hero.css";
+@import "./cards.css";
+@import "./home.css";
+@import "./pages.css";
+@import "./footer.css";
+@import "./detail.css";
+@import "./auth.css";
+@import "./responsive.css";

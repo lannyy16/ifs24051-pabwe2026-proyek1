@@ -1,0 +1,140 @@
+/* =========================================
+   SECTIONS AND HERB CARDS
+   ========================================= */
+
+.section {
+  padding: 42px 0 55px;
+}
+
+.sectionhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 9px;
+}
+
+.section h2,
+.finderbanner h2 {
+  font: 600 30px 'Playfair Display', Georgia, serif;
+  margin: 0 0 8px;
+}
+
+.sectionhead p {
+  margin: 0;
+}
+
+.textlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #426b46;
+  font-size: max(12px, 0.75rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.herbcard-wrap {
+  min-width: 0;
+}
+
+.herbcard {
+  background: #fff;
+  border: 1px solid #e9ece5;
+  border-radius: 15px;
+  overflow: hidden;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.herbcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px #31452b0b;
+}
+
+.cardpic {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cardpic span {
+  font-size: 75px;
+}
+
+.cardpic small {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  background: #ffffffc9;
+  border-radius: 20px;
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.cardbody {
+  padding: 17px;
+}
+
+.cardtitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardtitle h3 {
+  margin: 0;
+  font: 600 21px 'Playfair Display', Georgia, serif;
+}
+
+.cardtitle svg {
+  color: #739176;
+}
+
+.cardbody i {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+}
+
+.cardbody p {
+  font-size: max(12px, 0.75rem);
+  line-height: 1.65;
+  color: #59665a;
+  min-height: 40px;
+}
+
+.read {
+  display: flex;
+  align-items: center;
+  color: #426b46;
+  font-size: max(12px, 0.75rem);
+  font-weight: 700;
+  line-height: 1.5;
+  margin-top: 15px;
+}
+
+.card-save {
+  margin: 8px 0 0 4px;
+  color: #426b46;
+  font-size: max(12px, 0.75rem);
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 7px 9px;
+  border-radius: 7px;
+}
+
+.card-save:hover {
+  background: #eaf2e6;
+}
+

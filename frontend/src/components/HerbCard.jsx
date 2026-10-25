@@ -1,26 +1,11 @@
 import PropTypes from "prop-types";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { herbShape } from "../utils/propTypes.js";
-
-export function herbNameLatin(herb) {
-  return (
-    herb.scientificName ||
-    herb.latin ||
-    "Nama ilmiah belum tersedia"
-  );
-}
-
-export function herbDescription(herb) {
-  return (
-    herb.description ||
-    herb.desc ||
-    "Belum ada deskripsi untuk tanaman ini."
-  );
-}
-
-export function herbEmoji(herb) {
-  return herb.emoji || "🌿";
-}
+import {
+  herbDescription,
+  herbEmoji,
+  herbNameLatin,
+} from "../utils/herbFormatters.js";
 
 export default function HerbCard({
   herb,

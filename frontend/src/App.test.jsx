@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import App from "./App.jsx";
-import { SAVED_STORAGE_KEY } from "./utils/session.js";
-import { TOKEN_KEY } from "./services/api.js";
+import { SAVED_STORAGE_KEY, TOKEN_KEY } from "./config/storageKeys.js";
 
 const HERBS = [
   { id: 1, name: "Jahe", category: "Rimpang", description: "Hangat." },

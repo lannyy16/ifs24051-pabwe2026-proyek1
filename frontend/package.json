@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "npm --prefix .. test",
+    "test:coverage": "npm --prefix .. run test:coverage"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^6.1.2",

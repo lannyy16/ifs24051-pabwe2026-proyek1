@@ -1,7 +1,8 @@
-import { TOKEN_KEY } from "../services/api.js";
-
-export const USER_STORAGE_KEY = "herbanusantara-demo-user";
-export const SAVED_STORAGE_KEY = "herbanusantara-saved-herbs";
+import {
+  SAVED_STORAGE_KEY,
+  TOKEN_KEY,
+  USER_STORAGE_KEY,
+} from "../config/storageKeys.js";
 
 export function readSessionUser() {
   try {

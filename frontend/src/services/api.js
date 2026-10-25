@@ -1,25 +1,5 @@
-export const TOKEN_KEY = "herbanusantara-token";
-
-/**
- * Menghapus garis miring di akhir teks tanpa regex
- * (menghindari backtracking pada input panjang).
- *
- * @param {string} value
- * @returns {string}
- */
-export function trimTrailingSlashes(value) {
-  let end = value.length;
-
-  while (end > 0 && value[end - 1] === "/") {
-    end -= 1;
-  }
-
-  return value.slice(0, end);
-}
-
-const API_BASE_URL = trimTrailingSlashes(
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api",
-);
+import { API_BASE_URL } from "../config/env.js";
+import { TOKEN_KEY } from "../config/storageKeys.js";
 
 /**
  * Mengambil token autentikasi dari sessionStorage.
@@ -109,68 +89,4 @@ export async function apiRequest(endpoint, options = {}) {
   }
 
   return data;
-}
-
-/**
- * Mengambil daftar herbal dari backend.
- *
- * @param {object} params
- * @returns {Promise<Array>}
- */
-export async function getHerbs(params = {}) {
-  const {
-    search = "",
-    signal,
-    ...otherParams
-  } = params;
-
-  const query = new URLSearchParams();
-
-  // Pangkas spasi pada pencarian berbentuk string.
-  const trimmedSearch =
-    typeof search === "string"
-      ? search.trim()
-      : search;
-
-  if (
-    trimmedSearch !== undefined &&
-    trimmedSearch !== null &&
-    trimmedSearch !== ""
-  ) {
-    query.set("search", String(trimmedSearch));
-  }
-
-  // Tambahkan parameter tambahan yang memiliki nilai.
-  Object.entries(otherParams).forEach(([key, value]) => {
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== ""
-    ) {
-      query.set(key, String(value));
-    }
-  });
-
-  const queryString = query.toString();
-
-  const endpoint = queryString
-    ? `/herbs?${queryString}`
-    : "/herbs";
-
-  // Signal diteruskan ke fetch, bukan ke URL.
-  const result = await apiRequest(endpoint, {
-    method: "GET",
-    ...(signal ? { signal } : {}),
-  });
-
-  const herbs = result?.data;
-
-  // Validasi data herbal.
-  if (!Array.isArray(herbs)) {
-    throw new TypeError(
-      "Data herbal dari backend tidak valid.",
-    );
-  }
-
-  return herbs;
 }

@@ -1,4 +1,4 @@
-import { trimTrailingSlashes } from "../services/api.js";
+import { trimTrailingSlashes } from "./url.js";
 
 export const ROUTES = {
   Beranda: "/",

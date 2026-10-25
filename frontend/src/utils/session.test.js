@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  SAVED_STORAGE_KEY,
-  USER_STORAGE_KEY,
   clearSession,
   readSavedIds,
   readSessionUser,
@@ -10,7 +8,11 @@ import {
   saveSessionUser,
   writeSavedIds,
 } from "./session.js";
-import { TOKEN_KEY } from "../services/api.js";
+import {
+  SAVED_STORAGE_KEY,
+  TOKEN_KEY,
+  USER_STORAGE_KEY,
+} from "../config/storageKeys.js";
 
 describe("session", () => {
   beforeEach(() => {

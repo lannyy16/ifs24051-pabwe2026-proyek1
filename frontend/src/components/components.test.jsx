@@ -2,11 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import Footer from "./Footer.jsx";
 import Navbar from "./Navbar.jsx";
-import HerbCard, {
+import HerbCard from "./HerbCard.jsx";
+import {
   herbDescription,
   herbEmoji,
   herbNameLatin,
-} from "./HerbCard.jsx";
+} from "../utils/herbFormatters.js";
 import HerbDetailModal from "./HerbDetailModal.jsx";
 
 const herb = {

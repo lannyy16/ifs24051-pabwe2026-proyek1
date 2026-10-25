@@ -1,16 +1,8 @@
 import PropTypes from "prop-types";
 import { ArrowRight, Leaf, ShieldCheck } from "lucide-react";
 import HerbCard from "../components/HerbCard.jsx";
+import { PLANT_CATEGORIES } from "../data/plantCategories.js";
 import { herbShape } from "../utils/propTypes.js";
-
-const CATEGORIES = [
-  ["🌱", "Rimpang", "Jahe, temulawak"],
-  ["🍃", "Daun", "Kemangi, pegagan"],
-  ["🌼", "Bunga", "Chamomile, rosella"],
-  ["🫐", "Biji & buah", "Pala, kapulaga"],
-  ["🌳", "Kulit & resin", "Kayu manis"],
-  ["🍄", "Jamur", "Jamur tradisional"],
-];
 
 export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
   return (
@@ -143,7 +135,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
         </div>
 
         <div className="categorygrid">
-          {CATEGORIES.map(([emoji, name, desc]) => (
+          {PLANT_CATEGORIES.map(({ emoji, name, examples }) => (
             <button
               type="button"
               onClick={() => onNavigate("Katalog Herbal", name)}
@@ -152,7 +144,7 @@ export default function HomePage({ herbs, onNavigate, onSelectHerb }) {
             >
               <span>{emoji}</span>
               <b>{name}</b>
-              <small>{desc}</small>
+              <small>{examples}</small>
             </button>
           ))}
         </div>

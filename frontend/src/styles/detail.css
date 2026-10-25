@@ -1,0 +1,85 @@
+/* =========================================
+   HERB DETAIL
+   ========================================= */
+
+.detail {
+  padding: 35px 0;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #426b46;
+  margin-bottom: 25px;
+}
+
+.detailgrid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 45px;
+}
+
+.plantpic {
+  height: 300px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.plantpic span {
+  font-size: 120px;
+}
+
+.plantpic small {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  background: #ffffffc9;
+  padding: 7px 10px;
+  border-radius: 20px;
+}
+
+.detail h1 {
+  font: 600 45px 'Playfair Display', Georgia, serif;
+  margin: 12px 0;
+}
+
+.detail i {
+  color: #59665a;
+  font-size: 13px;
+}
+
+.detail p {
+  color: #59665a;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.info {
+  border-top: 1px solid #e5e9e2;
+  margin-top: 25px;
+  padding-top: 15px;
+}
+
+.info h3 {
+  font: 600 18px 'Playfair Display', Georgia, serif;
+  margin: 20px 0 5px;
+}
+
+.info ul {
+  padding-left: 20px;
+  color: #59665a;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.disclaimer {
+  background: #fff7e6;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px !important;
+}
+

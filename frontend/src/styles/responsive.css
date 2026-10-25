@@ -1,0 +1,192 @@
+/* =========================================
+   RESPONSIVE: TABLET
+   ========================================= */
+
+@media (max-width: 1050px) {
+  .nav {
+    gap: 12px;
+  }
+
+  nav {
+    gap: 12px;
+  }
+
+  .nav-auth {
+    gap: 4px;
+  }
+
+  .nav-auth .lang {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 850px) {
+  nav {
+    gap: 10px;
+  }
+
+  nav button {
+    font-size: 11px;
+  }
+
+  .hero {
+    gap: 20px;
+  }
+
+  .categorygrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .auth-layout {
+    gap: 28px;
+  }
+
+  .auth-decoration {
+    padding: 28px;
+  }
+
+  .auth-decoration h2 {
+    font-size: 30px;
+  }
+
+  .auth-leaf {
+    font-size: 120px;
+    right: 35px;
+  }
+
+  .auth-nav {
+    margin-left: auto;
+  }
+}
+
+/* =========================================
+   RESPONSIVE: MOBILE
+   ========================================= */
+
+@media (max-width: 760px) {
+  .nav-auth {
+    margin-left: auto;
+  }
+
+  .nav-auth .lang {
+    font-size: 10px;
+  }
+
+  nav {
+    order: 4;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav {
+    height: auto;
+    padding: 15px 0;
+  }
+
+  .filterrow {
+    gap: 6px;
+  }
+
+  .auth-card {
+    padding: 23px;
+  }
+}
+
+@media (max-width: 650px) {
+  .nav {
+    height: auto;
+    padding: 15px 0;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .auth-nav {
+    order: 2;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 40px;
+  }
+
+  .heroArt {
+    height: 270px;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .categorygrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .finderbanner {
+    display: grid;
+    gap: 15px;
+    padding: 25px;
+  }
+
+  .findergrid {
+    grid-template-columns: 1fr;
+  }
+
+  .detailgrid {
+    grid-template-columns: 1fr;
+  }
+
+  .plantpic {
+    height: 230px;
+  }
+
+  .foot {
+    gap: 12px;
+  }
+
+  .stats {
+    gap: 20px;
+  }
+
+  .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 25px 0;
+  }
+
+  .auth-decoration {
+    min-height: 250px;
+    padding: 25px;
+  }
+
+  .auth-leaf {
+    font-size: 85px;
+    right: 30px;
+    top: 20px;
+  }
+
+  .auth-decoration h2 {
+    font-size: 27px;
+  }
+
+  .auth-decoration > p:not(.eyebrow) {
+    max-width: 300px;
+  }
+
+  .auth-panel {
+    padding: 10px 5px;
+  }
+
+  .auth-panel h1 {
+    font-size: 32px;
+  }
+
+  .lang {
+    margin-left: auto;
+  }
+}

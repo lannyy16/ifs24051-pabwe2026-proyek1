@@ -1,0 +1,157 @@
+/* =========================================
+   HERO
+   ========================================= */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 45px;
+  padding: 68px 0 55px;
+  align-items: center;
+}
+
+.pill,
+.eyebrow {
+  font-size: max(12px, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  line-height: 1.5;
+  color: #426b46;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #eaf2e6;
+  padding: 9px 12px;
+  border-radius: 25px;
+}
+
+.hero h1,
+.catalog h1 {
+  font: 600 clamp(38px, 5vw, 60px) / 1.12 'Playfair Display', Georgia, serif;
+  margin: 22px 0;
+  color: #2b4131;
+}
+
+.hero h1 em {
+  color: #6e966c;
+}
+
+.heroText > p,
+.sectionhead p,
+.catalog > p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #59665a;
+  max-width: 520px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 27px;
+}
+
+.primary,
+.secondary,
+.save {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.primary {
+  background: #426f4c;
+  color: #fff;
+}
+
+.primary:hover {
+  background: #345b3d;
+}
+
+.secondary,
+.save {
+  border: 1px solid #dfe5db;
+  background: #fff;
+}
+
+.stats {
+  display: flex;
+  gap: 35px;
+  margin-top: 40px;
+}
+
+.stats span {
+  display: grid;
+  gap: 4px;
+}
+
+.stats b {
+  font: 600 24px 'Playfair Display', Georgia, serif;
+}
+
+.stats small {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+  line-height: 1.5;
+}
+
+.heroArt {
+  height: 390px;
+  border-radius: 26px;
+  background: #e9f0e3;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.sun {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: #f8dfaa;
+  top: 35px;
+  right: 35px;
+}
+
+.leafart {
+  position: relative;
+  font-size: 180px;
+  filter: drop-shadow(0 18px 12px #8b9f7a55);
+  transform: rotate(-15deg);
+}
+
+.artnote {
+  position: absolute;
+  bottom: 25px;
+  left: 25px;
+  background: #fff;
+  padding: 15px 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px #334a2910;
+  display: grid;
+  gap: 4px;
+}
+
+.artnote span {
+  color: #7b9a6f;
+}
+
+.artnote b {
+  font-size: 12px;
+}
+
+.artnote small {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+  line-height: 1.5;
+}
+

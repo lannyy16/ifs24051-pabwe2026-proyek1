@@ -1,38 +1,8 @@
-
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// Konfigurasi build & dev server frontend.
+// Pengujian dikonfigurasi di vitest.config.js pada root repository.
 export default defineConfig({
   plugins: [react()],
-
-  server: {
-    proxy: {
-      "/api": {
-        target:
-          "https://ifs24051-pabwe2026-proyek1-backend.vercel.app",
-        changeOrigin: true,
-        secure: true,
-      },
-    },
-  },
-
-  test: {
-    environment: "node",
-
-    include: [
-      "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
-    ],
-
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html", "lcov"],
-
-      include: ["src/services/**/*.js"],
-
-      exclude: [
-        "src/**/*.test.js",
-        "src/**/*.spec.js",
-      ],
-    },
-  },
 });

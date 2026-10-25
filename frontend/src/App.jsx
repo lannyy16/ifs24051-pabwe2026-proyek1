@@ -2,101 +2,35 @@ import { useCallback, useEffect, useState } from "react";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import HerbDetailModal from "./components/HerbDetailModal.jsx";
+import useAuth from "./hooks/useAuth.js";
 import useHerbs from "./hooks/useHerbs.js";
+import usePageRouter from "./hooks/usePageRouter.js";
+import useSavedHerbs from "./hooks/useSavedHerbs.js";
 import HomePage from "./pages/HomePage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import FinderPage from "./pages/FinderPage.jsx";
 import ArticlesPage from "./pages/ArticlesPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
-import {
-  fetchCurrentUser,
-  getAuthError,
-  loginUser,
-  registerUser,
-  validateAuthForm,
-} from "./services/authService.js";
-import { ROUTES, pageFromPath } from "./utils/routes.js";
-import {
-  clearSession,
-  readSavedIds,
-  readSessionUser,
-  readToken,
-  saveSession,
-  saveSessionUser,
-  writeSavedIds,
-} from "./utils/session.js";
 
 export default function App() {
-  const [page, setPage] = useState(() =>
-    pageFromPath(globalThis.location.pathname),
-  );
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("Semua");
   const [selectedHerb, setSelectedHerb] = useState(null);
-  const [user, setUser] = useState(readSessionUser);
-  const [savedIds, setSavedIds] = useState(readSavedIds);
-  const [authError, setAuthError] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   const { herbs, loading, error } = useHerbs(search, reloadKey);
+  const { savedIds, toggleSaved } = useSavedHerbs();
+  const auth = useAuth();
 
-  // Simpan herbal favorit
-  useEffect(() => {
-    writeSavedIds(savedIds);
-  }, [savedIds]);
+  // Tutup detail herbal dan hapus pesan error saat berpindah halaman.
+  const { clearError: clearAuthError } = auth;
+  const resetTransientState = useCallback(() => {
+    setSelectedHerb(null);
+    clearAuthError();
+  }, [clearAuthError]);
 
-  // Pulihkan sesi pengguna
-  useEffect(() => {
-    if (!readToken()) {
-      setUser(null);
-      return undefined;
-    }
-
-    let cancelled = false;
-
-    async function restoreSession() {
-      try {
-        const authenticatedUser = await fetchCurrentUser();
-
-        if (cancelled) {
-          return;
-        }
-
-        setUser(authenticatedUser);
-        saveSessionUser(authenticatedUser);
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        clearSession();
-        setUser(null);
-      }
-    }
-
-    restoreSession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Navigasi browser (tombol back/forward)
-  useEffect(() => {
-    const onPopState = () => {
-      setPage(pageFromPath(globalThis.location.pathname));
-      setSelectedHerb(null);
-      setAuthError("");
-    };
-
-    globalThis.addEventListener("popstate", onPopState);
-
-    return () => {
-      globalThis.removeEventListener("popstate", onPopState);
-    };
-  }, []);
+  const { page, goTo } = usePageRouter(resetTransientState);
 
   // Perbarui herbal yang sedang dipilih jika datanya berubah
   useEffect(() => {
@@ -104,9 +38,7 @@ export default function App() {
       return;
     }
 
-    const updatedHerb = herbs.find(
-      (item) => item.id === selectedHerb.id,
-    );
+    const updatedHerb = herbs.find((item) => item.id === selectedHerb.id);
 
     if (updatedHerb) {
       setSelectedHerb(updatedHerb);
@@ -114,37 +46,21 @@ export default function App() {
   }, [herbs, selectedHerb]);
 
   // Navigasi halaman
-  const navigate = useCallback((nextPage, nextCategory) => {
-    setPage(nextPage);
+  const navigate = useCallback(
+    (nextPage, nextCategory) => {
+      goTo(nextPage);
+      resetTransientState();
 
-    const nextPath = ROUTES[nextPage] || "/";
+      if (nextPage === "Katalog Herbal") {
+        setCategory(nextCategory || "Semua");
 
-    if (globalThis.location.pathname !== nextPath) {
-      globalThis.history.pushState(null, "", nextPath);
-    }
-
-    setSelectedHerb(null);
-    setAuthError("");
-
-    if (nextPage === "Katalog Herbal") {
-      setCategory(nextCategory || "Semua");
-
-      if (nextCategory && nextCategory !== "Semua") {
-        setSearch("");
+        if (nextCategory && nextCategory !== "Semua") {
+          setSearch("");
+        }
       }
-    }
-
-    globalThis.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  // Simpan atau hapus herbal favorit
-  const toggleSaved = useCallback((id) => {
-    setSavedIds((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
-  }, []);
+    },
+    [goTo, resetTransientState],
+  );
 
   // Dipanggil dari halaman Finder
   const chooseTopic = useCallback(
@@ -157,48 +73,24 @@ export default function App() {
   );
 
   // Login dan registrasi
+  const { submit: submitAuth } = auth;
   const handleAuth = useCallback(
     async (form) => {
-      setAuthError("");
+      const isSuccess = await submitAuth(form, page === "Daftar");
 
-      const isRegister = page === "Daftar";
-      const validatedForm = validateAuthForm(form, isRegister);
-
-      if (validatedForm.error) {
-        setAuthError(validatedForm.error);
-        return;
-      }
-
-      setAuthLoading(true);
-
-      try {
-        const authResult = isRegister
-          ? await registerUser(validatedForm)
-          : await loginUser(validatedForm);
-
-        saveSession(authResult.authenticatedUser, authResult.token);
-        setUser(authResult.authenticatedUser);
+      if (isSuccess) {
         navigate("Dashboard");
-      } catch (requestError) {
-        const fallback = isRegister
-          ? "Registrasi gagal. Silakan coba lagi."
-          : "Login gagal. Silakan coba lagi.";
-
-        setAuthError(getAuthError(requestError, fallback));
-      } finally {
-        setAuthLoading(false);
       }
     },
-    [page, navigate],
+    [page, submitAuth, navigate],
   );
 
   // Logout
-  const logout = useCallback(() => {
-    clearSession();
-    setUser(null);
-    setAuthError("");
+  const { logout: logoutUser } = auth;
+  const handleLogout = useCallback(() => {
+    logoutUser();
     navigate("Beranda");
-  }, [navigate]);
+  }, [logoutUser, navigate]);
 
   function renderPage() {
     if (selectedHerb) {
@@ -239,7 +131,7 @@ export default function App() {
       case "Dashboard":
         return (
           <DashboardPage
-            user={user}
+            user={auth.user}
             herbs={herbs}
             savedIds={savedIds}
             onSelectHerb={setSelectedHerb}
@@ -254,9 +146,9 @@ export default function App() {
           <AuthPage
             mode={page}
             onSubmit={handleAuth}
-            error={authError}
+            error={auth.error}
             onSwitch={navigate}
-            loading={authLoading}
+            loading={auth.loading}
           />
         );
 
@@ -276,8 +168,8 @@ export default function App() {
       <Navbar
         page={page}
         onNavigate={navigate}
-        user={user}
-        onLogout={logout}
+        user={auth.user}
+        onLogout={handleLogout}
       />
 
       <main className="wrap">{renderPage()}</main>

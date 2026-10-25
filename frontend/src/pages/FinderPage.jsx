@@ -1,12 +1,6 @@
 import PropTypes from "prop-types";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-
-const TOPICS = [
-  { name: "Mual ringan", emoji: "🌿", keyword: "jahe" },
-  { name: "Kualitas tidur", emoji: "🌼", keyword: "chamomile" },
-  { name: "Pencernaan", emoji: "🍃", keyword: "" },
-  { name: "Relaksasi", emoji: "☘️", keyword: "chamomile" },
-];
+import { FINDER_TOPICS } from "../data/finderTopics.js";
 
 export default function FinderPage({ onChooseTopic }) {
   return (
@@ -19,7 +13,7 @@ export default function FinderPage({ onChooseTopic }) {
       </p>
 
       <div className="findergrid">
-        {TOPICS.map((topic) => (
+        {FINDER_TOPICS.map((topic) => (
           <button
             key={topic.name}
             type="button"

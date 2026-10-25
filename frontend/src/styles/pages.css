@@ -1,0 +1,150 @@
+/* =========================================
+   CATALOG AND SEARCH
+   ========================================= */
+
+.catalog {
+  min-height: 65vh;
+  padding-top: 55px;
+}
+
+.catalog h1 {
+  font-size: 43px;
+  margin: 12px 0;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e3e8df;
+  border-radius: 10px;
+  padding: 13px;
+  margin: 25px 0;
+}
+
+.search svg {
+  color: #7c8b7d;
+}
+
+.search input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  font: 13px 'DM Sans', Arial, sans-serif;
+}
+
+.catalog .cards {
+  margin-top: 22px;
+}
+
+.filterrow {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 22px;
+}
+
+.filter-chip {
+  border: 1px solid #dfe5db;
+  background: #fff;
+  border-radius: 22px;
+  padding: 8px 13px;
+  font-size: 12px;
+  color: #617064;
+}
+
+.filter-chip.active {
+  background: #426f4c;
+  border-color: #426f4c;
+  color: #fff;
+}
+
+/* =========================================
+   HERBAL FINDER
+   ========================================= */
+
+.findergrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 30px 0;
+}
+
+.topic {
+  background: #fff;
+  border: 1px solid #e6eae3;
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 7px;
+  text-align: left;
+}
+
+.topic span {
+  grid-row: span 2;
+  font-size: 26px;
+}
+
+.topic b {
+  font-size: 14px;
+}
+
+.topic small {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.5;
+}
+
+/* =========================================
+   NOTICES AND ARTICLES
+   ========================================= */
+
+.notice {
+  display: flex;
+  gap: 14px;
+  background: #fff7e6;
+  border: 1px solid #f2e4c6;
+  border-radius: 12px;
+  padding: 18px;
+  color: #74551f;
+}
+
+.notice p {
+  font-size: max(12px, 0.75rem);
+  line-height: 1.7;
+  margin: 5px 0;
+  color: #6e5a3a;
+}
+
+.articlebox {
+  display: flex;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #e7ebe3;
+  border-radius: 12px;
+  padding: 22px;
+  margin: 15px 0;
+}
+
+.articlebox svg {
+  color: #719174;
+}
+
+.articlebox b {
+  font-size: 14px;
+}
+
+.articlebox p {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+  line-height: 1.7;
+}
+

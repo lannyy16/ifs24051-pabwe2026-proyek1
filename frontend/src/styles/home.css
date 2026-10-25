@@ -1,0 +1,54 @@
+/* =========================================
+   FINDER BANNER AND CATEGORIES
+   ========================================= */
+
+.finderbanner {
+  margin: 20px 0 45px;
+  background: #edf3e8;
+  border-radius: 18px;
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.finderbanner p {
+  font-size: max(12px, 0.75rem);
+  color: #53644f;
+  line-height: 1.5;
+}
+
+.categories {
+  padding-top: 10px;
+}
+
+.categorygrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.cat {
+  background: #fff;
+  border: 1px solid #e8ece5;
+  border-radius: 12px;
+  padding: 17px 12px;
+  text-align: left;
+  display: grid;
+  gap: 8px;
+}
+
+.cat span {
+  font-size: 26px;
+}
+
+.cat b {
+  font-size: 12px;
+}
+
+.cat small {
+  font-size: max(12px, 0.75rem);
+  color: #59665a;
+  line-height: 1.5;
+}
+

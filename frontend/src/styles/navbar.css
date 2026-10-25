@@ -1,0 +1,121 @@
+/* =========================================
+   HEADER AND NAVIGATION
+   ========================================= */
+
+header {
+  background: #fff;
+  border-bottom: 1px solid #e9ece4;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.nav {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 14px;
+  background: #e9f1e4;
+  color: #47734e;
+}
+
+.brand > span:last-child {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.brand > span:last-child span {
+  color: #426b46;
+}
+
+.brand small {
+  display: block;
+  font-size: max(12px, 0.75rem);
+  letter-spacing: 1.4px;
+  color: #59665a;
+  margin-top: 5px;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav button {
+  font-size: 13px;
+  color: #68766a;
+  padding: 10px 0;
+}
+
+nav button.active,
+nav button:hover {
+  color: #3d7148;
+}
+
+.lang {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  border: 1px solid #e7e9e2;
+  border-radius: 20px;
+  padding: 9px 12px;
+}
+
+.auth-nav,
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-auth .lang {
+  white-space: nowrap;
+}
+
+.auth-outline,
+.auth-small,
+.auth-user {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.auth-outline {
+  border: 1px solid #dfe5db;
+  background: #fff;
+  color: #426f4c;
+}
+
+.auth-small {
+  background: #426f4c;
+  color: #fff;
+}
+
+.auth-user {
+  color: #426f4c;
+  background: #edf3e8;
+}
+

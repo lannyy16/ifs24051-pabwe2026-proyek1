@@ -5,7 +5,7 @@ import {
   herbDescription,
   herbEmoji,
   herbNameLatin,
-} from "./HerbCard.jsx";
+} from "../utils/herbFormatters.js";
 
 export default function HerbDetailModal({
   herb,

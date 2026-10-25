@@ -1,49 +1,10 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
-
+import { Leaf, LogIn, UserPlus } from "lucide-react";
+import PasswordField from "../components/PasswordField.jsx";
 import {
-  Eye,
-  EyeOff,
-  Leaf,
-  LogIn,
-  UserPlus,
-} from "lucide-react";
-
-// Mengambil nilai FormData dan memastikan hasilnya string
-function getFormValue(formData, name) {
-  const value = formData.get(name);
-
-  return typeof value === "string" ? value : "";
-}
-
-// Mengambil seluruh data form
-function getAuthFormData(formData) {
-  return {
-    name: getFormValue(formData, "name").trim(),
-
-    email: getFormValue(formData, "email")
-      .trim()
-      .toLowerCase(),
-
-    password: getFormValue(formData, "password"),
-
-    confirmation: getFormValue(
-      formData,
-      "confirmation"
-    ),
-  };
-}
-
-// Menentukan teks tombol submit
-function getSubmitLabel(isRegister, loading) {
-  if (loading) {
-    return isRegister
-      ? "Memproses pendaftaran..."
-      : "Memproses login...";
-  }
-
-  return isRegister ? "Daftar" : "Masuk";
-}
+  getAuthFormData,
+  getSubmitLabel,
+} from "../utils/authForm.js";
 
 export default function AuthPage({
   mode,
@@ -52,8 +13,6 @@ export default function AuthPage({
   onSwitch,
   loading = false,
 }) {
-  const [showPassword, setShowPassword] = useState(false);
-
   const isRegister = mode === "Daftar";
 
   // Mengirim data form
@@ -69,11 +28,6 @@ export default function AuthPage({
     const form = getAuthFormData(formData);
 
     onSubmit(form);
-  }
-
-  // Menampilkan atau menyembunyikan password
-  function handlePasswordVisibility() {
-    setShowPassword((previousValue) => !previousValue);
   }
 
   // Berpindah mode login dan daftar
@@ -141,51 +95,7 @@ export default function AuthPage({
           </label>
 
           {/* Password */}
-          <label htmlFor="password">
-            Kata sandi
-
-            <span className="password-field">
-              <input
-                id="password"
-                name="password"
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
-                autoComplete={
-                  isRegister
-                    ? "new-password"
-                    : "current-password"
-                }
-                required
-                minLength={isRegister ? 8 : 1}
-                placeholder={
-                  isRegister
-                    ? "Minimal 8 karakter"
-                    : "Masukkan kata sandi"
-                }
-                disabled={loading}
-              />
-
-              <button
-                type="button"
-                aria-label={
-                  showPassword
-                    ? "Sembunyikan kata sandi"
-                    : "Tampilkan kata sandi"
-                }
-                onClick={handlePasswordVisibility}
-                disabled={loading}
-              >
-                {showPassword ? (
-                  <EyeOff size={17} />
-                ) : (
-                  <Eye size={17} />
-                )}
-              </button>
-            </span>
-          </label>
+          <PasswordField isRegister={isRegister} disabled={loading} />
 
           {/* Konfirmasi password */}
           {isRegister && (

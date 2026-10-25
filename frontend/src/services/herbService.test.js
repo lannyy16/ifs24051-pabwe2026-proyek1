@@ -1,225 +1,169 @@
-
 import {
   describe,
-  expect,
   it,
+  expect,
   vi,
+  beforeEach,
   afterEach,
 } from "vitest";
 
 import { getHerbs } from "./herbService.js";
+import { API_BASE_URL as API_URL } from "../config/env.js";
 
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
-});
+function mockSuccess(data = { success: true }) {
+  fetch.mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: async () => data,
+  });
+}
 
 describe("getHerbs", () => {
-  it("mengambil daftar tanaman tanpa parameter pencarian", async () => {
-    const herbs = [{ id: 1, name: "Jahe" }];
-
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ success: true, data: herbs }),
+  beforeEach(() => {
+    vi.stubGlobal("sessionStorage", {
+      getItem: vi.fn().mockReturnValue(null),
     });
 
-    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("mengambil daftar herbal tanpa parameter pencarian", async () => {
+    const herbs = [{ id: 1, name: "Jahe" }];
+    mockSuccess({ success: true, data: herbs });
 
     await expect(getHerbs()).resolves.toEqual(herbs);
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://ifs24051-pabwe2026-proyek1-backend.vercel.app/api/herbs",
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-        signal: undefined,
-      },
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs`,
+      expect.objectContaining({ method: "GET" }),
     );
   });
 
-  it("menambahkan parameter pencarian jika search diisi", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: [{ id: 2, name: "Kunyit" }],
-      }),
-    });
+  it("menambahkan parameter pencarian setelah spasi dipangkas", async () => {
+    mockSuccess({ success: true, data: [] });
 
-    vi.stubGlobal("fetch", fetchMock);
+    await getHerbs({ search: "  jahe  " });
 
-    await expect(
-      getHerbs({ search: " kunyit " }),
-    ).resolves.toEqual([{ id: 2, name: "Kunyit" }]);
-
-    const calledUrl = fetchMock.mock.calls[0][0];
-
-    expect(calledUrl).toContain("search=kunyit");
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs?search=jahe`,
+      expect.any(Object),
+    );
   });
 
-  it("tidak menambahkan parameter pencarian jika search kosong", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ success: true, data: [] }),
-    });
+  it("tidak menambahkan parameter jika pencarian hanya spasi", async () => {
+    mockSuccess({ success: true, data: [] });
 
-    vi.stubGlobal("fetch", fetchMock);
+    await getHerbs({ search: "   " });
 
-    await expect(
-      getHerbs({ search: "" }),
-    ).resolves.toEqual([]);
-
-    const calledUrl = fetchMock.mock.calls[0][0];
-
-    expect(calledUrl).not.toContain("search=");
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs`,
+      expect.any(Object),
+    );
   });
 
-  it("melempar error ketika respons HTTP gagal", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
+  it("mengodekan karakter khusus pada pencarian", async () => {
+    mockSuccess({ success: true, data: [] });
+
+    await getHerbs({ search: "jahe & kunyit" });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs?search=jahe+%26+kunyit`,
+      expect.any(Object),
+    );
+  });
+
+  it("menerima pencarian berupa angka dan mengubahnya menjadi string", async () => {
+    mockSuccess({ success: true, data: [] });
+
+    await getHerbs({ search: 123 });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs?search=123`,
+      expect.any(Object),
+    );
+  });
+
+  it("menambahkan parameter tambahan yang valid", async () => {
+    mockSuccess({ success: true, data: [] });
+
+    await getHerbs({
+      category: "rempah",
+      page: 2,
+      ignoredUndefined: undefined,
+      ignoredNull: null,
+      ignoredEmpty: "",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs?category=rempah&page=2`,
+      expect.any(Object),
+    );
+  });
+
+  it("mengabaikan pencarian null dan kosong", async () => {
+    mockSuccess({ success: true, data: [] });
+
+    await getHerbs({ search: null });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs`,
+      expect.any(Object),
+    );
+  });
+
+  it("meneruskan AbortSignal ke request", async () => {
+    const controller = new AbortController();
+    mockSuccess({ success: true, data: [] });
+
+    await getHerbs({ signal: controller.signal });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${API_URL}/herbs`,
+      expect.objectContaining({
+        signal: controller.signal,
       }),
     );
+  });
+
+  it("meneruskan error HTTP dari backend", async () => {
+    fetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({ message: "Server error" }),
+    });
+
+    await expect(getHerbs()).rejects.toThrow("Server error");
+  });
+
+  it("melempar error jika data herbal bukan array", async () => {
+    mockSuccess({
+      success: true,
+      data: { name: "Jahe" },
+    });
 
     await expect(getHerbs()).rejects.toThrow(
-      "Gagal mengambil data herbal (HTTP 500).",
+      "Data herbal dari backend tidak valid.",
     );
   });
 
   it("menolak respons null", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => null,
-      }),
-    );
+    mockSuccess(null);
 
     await expect(getHerbs()).rejects.toThrow(
-      "Format data herbal dari server tidak valid.",
+      "Data herbal dari backend tidak valid.",
     );
   });
 
-  it("menolak success yang bukan true", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: false, data: [] }),
-      }),
-    );
+  it("menolak respons tanpa data", async () => {
+    mockSuccess({ success: true });
 
     await expect(getHerbs()).rejects.toThrow(
-      "Format data herbal dari server tidak valid.",
-    );
-  });
-
-  it("menolak data yang bukan array", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, data: {} }),
-      }),
-    );
-
-    await expect(getHerbs()).rejects.toThrow(
-      "Format data herbal dari server tidak valid.",
-    );
-  });
-
-  it("meneruskan AbortSignal ke fetch", async () => {
-    const controller = new AbortController();
-
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ success: true, data: [] }),
-    });
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await getHerbs({ signal: controller.signal });
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://ifs24051-pabwe2026-proyek1-backend.vercel.app/api/herbs",
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-        signal: controller.signal,
-      },
-    );
-  });
-
-  it("meneruskan AbortError tanpa mengubahnya", async () => {
-    const error = new Error("Request dibatalkan");
-    error.name = "AbortError";
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(error),
-    );
-
-    await expect(getHerbs()).rejects.toBe(error);
-  });
-
-  it("menangani error fetch berupa nilai selain Error", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue("network failure"),
-    );
-
-    await expect(getHerbs()).rejects.toThrow(
-      "Terjadi kesalahan saat mengambil data herbal.",
-    );
-  });
-
-  it("menangani kegagalan parsing JSON", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => {
-          throw new Error("Invalid JSON");
-        },
-      }),
-    );
-
-    await expect(getHerbs()).rejects.toThrow("Invalid JSON");
-  });
-
-  it("memangkas spasi pada pencarian dan mengodekan karakter khusus", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ success: true, data: [] }),
-    });
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await getHerbs({ search: " jahe & kunyit " });
-
-    expect(fetchMock.mock.calls[0][0]).toContain(
-      "search=jahe+%26+kunyit",
-    );
-  });
-
-  it("menerima pencarian berupa angka", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ success: true, data: [] }),
-    });
-
-    vi.stubGlobal("fetch", fetchMock);
-
-    await getHerbs({ search: 123 });
-
-    expect(fetchMock.mock.calls[0][0]).toContain(
-      "search=123",
+      "Data herbal dari backend tidak valid.",
     );
   });
 });
