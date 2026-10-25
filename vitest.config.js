@@ -1,56 +1,49 @@
 
 import { defineConfig } from "vitest/config";
-import fs from "node:fs";
-import path from "node:path";
-
-const reportPath = path.resolve("coverage/lcov.info");
-
-process.on("exit", () => {
-  if (!fs.existsSync(reportPath)) {
-    return;
-  }
-
-  let report = fs.readFileSync(reportPath, "utf8");
-
-  // Sesuaikan jalur frontend/src menjadi root src.
-  report = report.replace(
-    /^SF:frontend[\\/]+src[\\/]+/gm,
-    "SF:src/"
-  );
-
-  // Seragamkan pemisah jalur menjadi slash (/).
-  report = report.replace(/^SF:(.*)$/gm, (_, filePath) => {
-    return `SF:${filePath.replace(/\\/g, "/")}`;
-  });
-
-  fs.writeFileSync(reportPath, report, "utf8");
-
-  console.log("Jalur coverage LCOV telah disesuaikan.");
-});
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  test: {
-    include: [
-      "frontend/src/**/*.{test,spec}.{js,jsx,ts,tsx}"
-    ],
+  plugins: [react()],
 
+  server: {
+    proxy: {
+      "/api": {
+        target:
+          "https://ifs24051-pabwe2026-proyek1-backend.vercel.app",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
+
+  test: {
     environment: "node",
+
+    include: [
+      "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+    ],
 
     coverage: {
       provider: "v8",
 
       reporter: ["text", "html", "lcov"],
 
-      include: [
-        "frontend/src/services/**/*.js"
-      ],
+      reportsDirectory: "../coverage",
 
+      // Hanya menghitung coverage file service.
+      include: ["src/services/**/*.{js,jsx,ts,tsx}"],
+
+      // File pengujian tidak dihitung sebagai kode aplikasi.
       exclude: [
-        "frontend/src/**/*.test.js",
-        "frontend/src/**/*.spec.js"
+        "src/**/*.test.js",
+        "src/**/*.test.jsx",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "src/**/*.spec.js",
+        "src/**/*.spec.jsx",
+        "src/**/*.spec.ts",
+        "src/**/*.spec.tsx",
       ],
-
-      reportsDirectory: "coverage"
-    }
-  }
+    },
+  },
 });
