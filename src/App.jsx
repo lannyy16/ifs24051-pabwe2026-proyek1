@@ -5,12 +5,10 @@ import {
   useMemo,
   useState,
 } from "react";
-
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import HerbDetailModal from "./components/HerbDetailModal.jsx";
 import useHerbs from "./hooks/useHerbs.js";
-
 import HomePage from "./pages/HomePage.jsx";
 import CatalogPage from "./pages/CatalogPage.jsx";
 import FinderPage from "./pages/FinderPage.jsx";
@@ -21,7 +19,6 @@ import AuthPage from "./pages/AuthPage.jsx";
 // =====================================================
 // KONFIGURASI
 // =====================================================
-
 const API_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:3000/api"
 ).replace(/\/+$/, "");
@@ -33,7 +30,6 @@ const SAVED_STORAGE_KEY = "herbanusantara-saved-herbs";
 // =====================================================
 // ROUTING
 // =====================================================
-
 const ROUTES = {
   Beranda: "/",
   "Katalog Herbal": "/katalog",
@@ -66,7 +62,6 @@ function pageFromPath(pathname) {
 // =====================================================
 // STORAGE
 // =====================================================
-
 function readSessionUser() {
   try {
     const value = globalThis.sessionStorage.getItem(
@@ -121,7 +116,6 @@ function clearSession() {
 // =====================================================
 // API HELPER
 // =====================================================
-
 async function apiRequest(endpoint, options = {}) {
   const token = readToken();
   const headers = new Headers(options.headers);
@@ -171,7 +165,6 @@ async function apiRequest(endpoint, options = {}) {
 // =====================================================
 // AUTH HELPERS
 // =====================================================
-
 function getStringValue(value) {
   return typeof value === "string" ? value : "";
 }
@@ -274,7 +267,6 @@ async function loginUser(form) {
 // =====================================================
 // PAGE CONTENT
 // =====================================================
-
 function HomeContent({ herbs, navigate, setSelectedHerb }) {
   return (
     <HomePage
@@ -395,15 +387,6 @@ function renderPage({
   }
 
   switch (page) {
-    case "Beranda":
-      return (
-        <HomeContent
-          herbs={herbs}
-          navigate={navigate}
-          setSelectedHerb={setSelectedHerb}
-        />
-      );
-
     case "Katalog Herbal":
       return (
         <CatalogContent
@@ -457,6 +440,7 @@ function renderPage({
         />
       );
 
+    case "Beranda":
     default:
       return (
         <HomeContent
@@ -471,7 +455,6 @@ function renderPage({
 // =====================================================
 // APP
 // =====================================================
-
 export default function App() {
   const [page, setPage] = useState(() =>
     pageFromPath(globalThis.location.pathname)
