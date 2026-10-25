@@ -113,7 +113,9 @@ export default function AuthPage({
         <form onSubmit={handleSubmit}>
           {isRegister && (
             <label htmlFor="name">
-              Nama lengkap
+              <span className="auth-label-text">
+                Nama lengkap
+              </span>
               <input
                 id="name"
                 name="name"
@@ -129,7 +131,7 @@ export default function AuthPage({
           )}
 
           <label htmlFor="username">
-            Email
+            <span className="auth-label-text">Email</span>
             <input
               id="username"
               name="email"
@@ -143,7 +145,9 @@ export default function AuthPage({
           </label>
 
           <label htmlFor="password">
-            Kata sandi
+            <span className="auth-label-text">
+              Kata sandi
+            </span>
             <span className="password-field">
               <input
                 id="password"
@@ -185,7 +189,9 @@ export default function AuthPage({
 
           {isRegister && (
             <label htmlFor="confirmation">
-              Konfirmasi kata sandi
+              <span className="auth-label-text">
+                Konfirmasi kata sandi
+              </span>
               <input
                 id="confirmation"
                 name="confirmation"

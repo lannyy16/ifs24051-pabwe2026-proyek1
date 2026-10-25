@@ -396,7 +396,6 @@ function renderPage({
 
   switch (page) {
     case "Beranda":
-    default:
       return (
         <HomeContent
           herbs={herbs}
@@ -455,6 +454,15 @@ function renderPage({
           authError={authError}
           navigate={navigate}
           authLoading={authLoading}
+        />
+      );
+
+    default:
+      return (
+        <HomeContent
+          herbs={herbs}
+          navigate={navigate}
+          setSelectedHerb={setSelectedHerb}
         />
       );
   }

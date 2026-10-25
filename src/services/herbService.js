@@ -16,7 +16,6 @@ const API_URL = `${API_BASE_URL}/api/herbs`;
  */
 export async function getHerbs({ search = "", signal } = {}) {
   const params = new URLSearchParams();
-
   const keyword = String(search || "").trim();
 
   if (keyword) {
