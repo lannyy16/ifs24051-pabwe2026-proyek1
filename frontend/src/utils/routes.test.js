@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ROUTES, pageFromPath } from "./routes.js";
+import { NOT_FOUND_PAGE, ROUTES, pageFromPath } from "./routes.js";
 
 describe("pageFromPath", () => {
   it.each([
@@ -20,11 +20,15 @@ describe("pageFromPath", () => {
     expect(pageFromPath("/KATALOG///")).toBe("Katalog Herbal");
   });
 
-  it("kembali ke Beranda untuk path kosong atau tidak dikenal", () => {
+  it("kembali ke Beranda untuk path kosong", () => {
     expect(pageFromPath("")).toBe("Beranda");
     expect(pageFromPath(undefined)).toBe("Beranda");
     expect(pageFromPath("///")).toBe("Beranda");
-    expect(pageFromPath("/tidak-ada")).toBe("Beranda");
+  });
+
+  it("menandai path tidak dikenal sebagai halaman tidak ditemukan", () => {
+    expect(pageFromPath("/tidak-ada")).toBe(NOT_FOUND_PAGE);
+    expect(pageFromPath("/katalog/jahe")).toBe(NOT_FOUND_PAGE);
   });
 
   it("ROUTES konsisten dengan pageFromPath", () => {

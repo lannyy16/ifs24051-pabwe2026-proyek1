@@ -8,12 +8,15 @@ React + Vite. Backend dipanggil lewat REST API (lihat `src/config/env.js`).
 | --- | --- |
 | `config/` | Konfigurasi: base URL API (`env.js`) dan kunci storage |
 | `services/` | Akses API: `api.js` (HTTP client), `authService.js`, `herbService.js` |
-| `hooks/` | State & efek: `useAuth`, `useHerbs`, `usePageRouter`, `useSavedHerbs` |
+| `hooks/` | State & efek: `useAuth`, `useHerbs`, `usePageRouter`, `useSavedHerbs`, `useDebouncedValue`, `useDocumentTitle` |
 | `pages/` | Halaman (komposisi UI) |
 | `components/` | Komponen UI yang dipakai ulang |
 | `data/` | Data statis (menu, artikel, topik, kategori) |
 | `utils/` | Fungsi murni: routing, session storage, validasi/format |
 | `styles/` | CSS per bagian, diimpor lewat `styles/index.css` |
+
+Pencarian di-debounce (`config/constants.js`), error render ditangkap `ErrorBoundary`, dan path tidak dikenal menampilkan halaman 404.
+Setiap modul punya file test sendiri di sebelahnya (`Nama.test.jsx`).
 
 Alur data: `pages/components` → `hooks` → `services` → `config`.
 `App.jsx` hanya merangkai hook dan memilih halaman yang ditampilkan.

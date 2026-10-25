@@ -12,6 +12,11 @@ import FinderPage from "./pages/FinderPage.jsx";
 import ArticlesPage from "./pages/ArticlesPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import useDebouncedValue from "./hooks/useDebouncedValue.js";
+import useDocumentTitle from "./hooks/useDocumentTitle.js";
+import { SEARCH_DEBOUNCE_MS } from "./config/constants.js";
+import { NOT_FOUND_PAGE } from "./utils/routes.js";
 
 export default function App() {
   const [search, setSearch] = useState("");
@@ -19,7 +24,9 @@ export default function App() {
   const [selectedHerb, setSelectedHerb] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const { herbs, loading, error } = useHerbs(search, reloadKey);
+  // Ketikan pengguna ditunda agar API tidak dipanggil di setiap huruf.
+  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+  const { herbs, loading, error } = useHerbs(debouncedSearch, reloadKey);
   const { savedIds, toggleSaved } = useSavedHerbs();
   const auth = useAuth();
 
@@ -31,6 +38,7 @@ export default function App() {
   }, [clearAuthError]);
 
   const { page, goTo } = usePageRouter(resetTransientState);
+  useDocumentTitle(page);
 
   // Perbarui herbal yang sedang dipilih jika datanya berubah
   useEffect(() => {
@@ -151,6 +159,9 @@ export default function App() {
             loading={auth.loading}
           />
         );
+
+      case NOT_FOUND_PAGE:
+        return <NotFoundPage onNavigate={navigate} />;
 
       default:
         return (

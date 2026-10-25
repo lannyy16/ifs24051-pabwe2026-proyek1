@@ -111,6 +111,17 @@ describe("App", () => {
     expect(await screen.findByText("Informasi berdasarkan topik")).toBeTruthy();
   });
 
+  it("menampilkan halaman 404 untuk alamat tidak dikenal", async () => {
+    installFetch();
+    globalThis.history.replaceState(null, "", "/tidak-ada");
+    render(<App />);
+
+    expect(await screen.findByText("Halaman tidak ditemukan")).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Kembali ke Beranda", { selector: "main button" }));
+    expect(globalThis.location.pathname).toBe("/");
+  });
+
   it("Finder mengarahkan ke katalog dengan kata kunci", async () => {
     const fetchMock = installFetch();
     render(<App />);
