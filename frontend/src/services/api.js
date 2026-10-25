@@ -33,15 +33,20 @@ export async function apiRequest(endpoint, options = {}) {
 
   const headers = {
     Accept: "application/json",
-    ...customHeaders
+    ...customHeaders,
   };
 
+  // Periksa Content-Type tanpa membedakan huruf besar/kecil.
+  const hasContentType = Object.keys(headers).some(
+    (key) => key.toLowerCase() === "content-type",
+  );
+
   // Tambahkan Content-Type jika request memiliki body.
-  if (requestOptions.body && !headers["Content-Type"]) {
+  if (requestOptions.body != null && !hasContentType) {
     headers["Content-Type"] = "application/json";
   }
 
-  // Tambahkan token autentikasi.
+  // Tambahkan token autentikasi jika tersedia.
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -51,7 +56,7 @@ export async function apiRequest(endpoint, options = {}) {
   try {
     response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...requestOptions,
-      headers
+      headers,
     });
   } catch (error) {
     // Jangan mengubah AbortError menjadi Error biasa.
@@ -60,7 +65,7 @@ export async function apiRequest(endpoint, options = {}) {
     }
 
     throw new Error(
-      "Tidak dapat terhubung ke backend. Pastikan backend berjalan."
+      "Tidak dapat terhubung ke backend. Pastikan backend berjalan.",
     );
   }
 
@@ -84,9 +89,7 @@ export async function apiRequest(endpoint, options = {}) {
 
   // Periksa status keberhasilan dari backend.
   if (data?.success === false) {
-    throw new Error(
-      data.message || "Request API gagal."
-    );
+    throw new Error(data.message || "Request API gagal.");
   }
 
   return data;
@@ -107,7 +110,7 @@ export async function getHerbs(params = {}) {
 
   const query = new URLSearchParams();
 
-  // Pencarian harus dipangkas terlebih dahulu.
+  // Pangkas spasi pada pencarian berbentuk string.
   const trimmedSearch =
     typeof search === "string"
       ? search.trim()
@@ -121,7 +124,7 @@ export async function getHerbs(params = {}) {
     query.set("search", String(trimmedSearch));
   }
 
-  // Parameter tambahan yang bukan AbortSignal.
+  // Tambahkan parameter tambahan yang memiliki nilai.
   Object.entries(otherParams).forEach(([key, value]) => {
     if (
       value !== undefined &&
@@ -138,11 +141,10 @@ export async function getHerbs(params = {}) {
     ? `/herbs?${queryString}`
     : "/herbs";
 
-  // Signal diteruskan sebagai fetch option,
-  // bukan sebagai parameter URL.
+  // Signal diteruskan ke fetch, bukan ke URL.
   const result = await apiRequest(endpoint, {
     method: "GET",
-    ...(signal ? { signal } : {})
+    ...(signal ? { signal } : {}),
   });
 
   const herbs = result?.data;
@@ -150,7 +152,7 @@ export async function getHerbs(params = {}) {
   // Validasi data herbal.
   if (!Array.isArray(herbs)) {
     throw new TypeError(
-      "Data herbal dari backend tidak valid."
+      "Data herbal dari backend tidak valid.",
     );
   }
 
